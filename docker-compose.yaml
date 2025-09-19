@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17
+    container_name: db_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=senhaforte
+      - POSTGRES_DB=db_nutritrack
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_nutritrack:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db_user -d db_nutritrack"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes: 
+  postgres_nutritrack:

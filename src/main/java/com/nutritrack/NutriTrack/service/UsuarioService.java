@@ -46,4 +46,12 @@ public class UsuarioService {
     public Page<UserResponseDTO> findAll(Pageable pageable) {
         return usuarioRepository.findAll(pageable).map(userMapper::toResponseDTO);
     }
+    
+    @Transactional
+    public void delete(UUID id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário não encontrado com o ID: " + id);
+        }
+        usuarioRepository.deleteById(id);
+    }
 }

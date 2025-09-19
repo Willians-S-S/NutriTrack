@@ -43,4 +43,10 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.updateProfile(id, updateDTO));
     }
 
+  @DeleteMapping("/{id}")
+    @Operation(summary = "Deleta um usuário")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        usuarioService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

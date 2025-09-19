@@ -61,4 +61,13 @@ public class Usuario {
     @UpdateTimestamp
     @Column(name = "atualizado_em")
     private OffsetDateTime atualizadoEm;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Refeicao> refeicoes;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RegistroPeso> registrosPeso;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RegistroAgua> registrosAgua;
 }

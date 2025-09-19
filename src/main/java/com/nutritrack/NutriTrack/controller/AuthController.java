@@ -1,0 +1,31 @@
+package com.nutritrack.controller;
+
+import com.nutritrack.dto.UserRequestDTO;
+import com.nutritrack.dto.UserResponseDTO;
+import com.nutritrack.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
+@Tag(name = "Autenticação", description = "Endpoints para registro e login de usuários")
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("/register")
+    @Operation(summary = "Registra um novo usuário")
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request) {
+        UserResponseDTO registeredUser = authService.register(request);
+        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    }
+}

@@ -21,10 +21,6 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UserMapper userMapper;
 
-    @Transactional(readOnly = true)
-    public Page<UserResponseDTO> findAll(Pageable pageable) {
-        return usuarioRepository.findAll(pageable).map(userMapper::toResponseDTO);
-    }
 
     @Transactional(readOnly = true)
     public UserResponseDTO findById(UUID id) {
@@ -32,7 +28,7 @@ public class UsuarioService {
             .map(userMapper::toResponseDTO)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + id));
     }
-
+    
     @Transactional
     public UserResponseDTO updateProfile(UUID userId, UserProfileUpdateDTO updateDTO) {
         Usuario usuario = usuarioRepository.findById(userId)
@@ -44,13 +40,5 @@ public class UsuarioService {
 
         Usuario updatedUsuario = usuarioRepository.save(usuario);
         return userMapper.toResponseDTO(updatedUsuario);
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        if (!usuarioRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuário não encontrado com o ID: " + id);
-        }
-        usuarioRepository.deleteById(id);
     }
 }

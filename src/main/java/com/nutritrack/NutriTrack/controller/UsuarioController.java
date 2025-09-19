@@ -27,5 +27,14 @@ public class UsuarioController {
     public ResponseEntity<UserResponseDTO> getCurrentUserProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.findById(id));
     }
+    
+        @PutMapping("/me/{id}")
+    @Operation(summary = "Atualiza o perfil do usuário")
+    public ResponseEntity<UserResponseDTO> updateCurrentUserProfile(
+            @PathVariable UUID id,
+        @Valid @RequestBody UserProfileUpdateDTO updateDTO
+    ) {
+        return ResponseEntity.ok(usuarioService.updateProfile(id, updateDTO));
+    }
 
 }

@@ -41,4 +41,9 @@ public class UsuarioService {
         Usuario updatedUsuario = usuarioRepository.save(usuario);
         return userMapper.toResponseDTO(updatedUsuario);
     }
+    
+    @Transactional(readOnly = true)
+    public Page<UserResponseDTO> findAll(Pageable pageable) {
+        return usuarioRepository.findAll(pageable).map(userMapper::toResponseDTO);
+    }
 }

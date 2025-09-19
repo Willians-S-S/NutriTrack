@@ -21,6 +21,12 @@ import java.util.UUID;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    
+    @GetMapping
+    @Operation(summary = "Lista todos os usuários")
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.findAll(pageable));
+    }
 
     @GetMapping("/me/{id}")
     @Operation(summary = "Retorna o perfil do usuário")

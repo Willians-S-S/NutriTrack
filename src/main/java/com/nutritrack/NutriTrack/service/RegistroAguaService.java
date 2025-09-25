@@ -20,6 +20,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Serviço responsável pelas operações de CRUD e consultas de registros de água de um usuário.
+ *
+ * Gerencia a criação, listagem por período, resumo diário e exclusão de registros de consumo de água,
+ * garantindo permissões de acesso e integridade dos dados.
+ */
 @Service
 @RequiredArgsConstructor
 public class RegistroAguaService {
@@ -28,6 +34,14 @@ public class RegistroAguaService {
     private final UsuarioRepository usuarioRepository;
     private final RegistroAguaMapper registroAguaMapper;
 
+    /**
+     * Cria um novo registro de água para o usuário especificado.
+     *
+     * @param usuarioId ID do usuário que está registrando a água
+     * @param requestDTO DTO contendo os dados do registro de água
+     * @return {@link RegistroAguaResponseDTO} com os dados do registro criado
+     * @throws ResourceNotFoundException se o usuário não existir
+     */
     @Transactional
     public RegistroAguaResponseDTO create(UUID usuarioId, RegistroAguaRequestDTO requestDTO) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -40,6 +54,14 @@ public class RegistroAguaService {
         return registroAguaMapper.toResponseDTO(savedRegistro);
     }
 
+    /**
+     * Lista os registros de água de um usuário dentro de um intervalo de datas.
+     *
+     * @param usuarioId ID do usuário
+     * @param start Data inicial do intervalo
+     * @param end Data final do intervalo
+     * @return Lista de {@link RegistroAguaResponseDTO} contendo os registros encontrados
+     */
     @Transactional(readOnly = true)
     public List<RegistroAguaResponseDTO> findByDateRange(UUID usuarioId, LocalDate start, LocalDate end) {
         return registroAguaRepository.findByUsuarioIdAndDataMedicaoBetween(usuarioId, start, end).stream()
@@ -47,6 +69,16 @@ public class RegistroAguaService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Retorna um resumo diário do consumo de água de um usuário em um intervalo de datas.
+     *
+     * Soma a quantidade de água consumida por dia e ordena os resultados do mais recente para o mais antigo.
+     *
+     * @param usuarioId ID do usuário
+     * @param start Data inicial do intervalo
+     * @param end Data final do intervalo
+     * @return Lista de {@link RegistroAguaDiarioDTO} contendo a data e a quantidade total de água consumida
+     */
     @Transactional(readOnly = true)
     public List<RegistroAguaDiarioDTO> getDailySummary(UUID usuarioId, LocalDate start, LocalDate end) {
         List<RegistroAgua> registros = registroAguaRepository.findByUsuarioIdAndDataMedicaoBetween(usuarioId, start, end);
@@ -63,6 +95,14 @@ public class RegistroAguaService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Exclui um registro de água de um usuário.
+     *
+     * @param usuarioId ID do usuário dono do registro
+     * @param registroId ID do registro a ser excluído
+     * @throws ResourceNotFoundException se o registro não existir
+     * @throws AccessDeniedException se o usuário não for dono do registro
+     */
     @Transactional
     public void delete(UUID usuarioId, UUID registroId) {
         RegistroAgua registro = registroAguaRepository.findById(registroId)

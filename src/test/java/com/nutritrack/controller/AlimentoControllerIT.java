@@ -18,6 +18,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Testes de integração para o {@link com.nutritrack.controller.AlimentoController}.
+ *
+ * Usa MockMvc para simular requisições HTTP e valida os status de resposta
+ * para diferentes endpoints e diferentes roles de usuário.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class AlimentoControllerIT {
@@ -29,14 +35,22 @@ class AlimentoControllerIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private AlimentoService alimentoService; // Mocking service layer to isolate controller tests
+    private AlimentoService alimentoService; // Mock do serviço para isolar testes do controller
 
+    /**
+     * Testa o endpoint GET /api/v1/alimentos.
+     * Deve retornar HTTP 200 OK.
+     */
     @Test
     void getAllAlimentos_shouldReturnOk() throws Exception {
         mockMvc.perform(get("/api/v1/alimentos"))
             .andExpect(status().isOk());
     }
 
+    /**
+     * Testa o endpoint POST /api/v1/alimentos com um usuário ADMIN.
+     * Deve permitir a criação do alimento e retornar HTTP 201 Created.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void createAlimento_withAdminRole_shouldReturnCreated() throws Exception {
@@ -54,6 +68,10 @@ class AlimentoControllerIT {
             .andExpect(status().isCreated());
     }
 
+    /**
+     * Testa o endpoint POST /api/v1/alimentos com um usuário USER.
+     * Usuário sem permissão para criar alimento deve receber HTTP 403 Forbidden.
+     */
     @Test
     @WithMockUser(roles = "USER")
     void createAlimento_withUserRole_shouldReturnForbidden() throws Exception {

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller para operações de autenticação, como registro de usuário.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -22,6 +25,12 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Endpoint para registrar um novo usuário.
+     *
+     * @param request Objeto contendo os dados do usuário a ser registrado.
+     * @return ResponseEntity contendo os dados do usuário registrado e o status HTTP CREATED.
+     */
     @PostMapping("/register")
     @Operation(summary = "Registra um novo usuário")
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request) {

@@ -17,6 +17,10 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller para operações relacionadas a refeições de usuários.
+ * Este controller oferece endpoints para criar, buscar, listar e deletar refeições.
+ */
 @RestController
 @RequestMapping("/api/v1/refeicoes")
 @RequiredArgsConstructor
@@ -25,6 +29,13 @@ public class RefeicaoController {
 
     private final RefeicaoService refeicaoService;
 
+    /**
+     * Endpoint para criar uma nova refeição para um usuário específico.
+     *
+     * @param idUser      ID do usuário para o qual a refeição será criada.
+     * @param requestDTO  Objeto contendo os dados da refeição a ser criada.
+     * @return ResponseEntity contendo os dados da refeição criada e o status HTTP CREATED.
+     */
     @PostMapping("/{idUser}")
     @Operation(summary = "Cria uma nova refeição para um usuário específico")
     public ResponseEntity<RefeicaoResponseDTO> createRefeicao(
@@ -35,6 +46,13 @@ public class RefeicaoController {
         return new ResponseEntity<>(createdRefeicao, HttpStatus.CREATED);
     }
 
+    /**
+     * Endpoint para buscar uma refeição específica de um usuário pelo ID da refeição.
+     *
+     * @param idUser ID do usuário que possui a refeição.
+     * @param id     ID da refeição a ser buscada.
+     * @return ResponseEntity contendo os dados da refeição encontrada e o status HTTP OK.
+     */
     @GetMapping("/{idUser}/{id}")
     @Operation(summary = "Busca uma refeição específica de um usuário pelo ID da refeição")
     public ResponseEntity<RefeicaoResponseDTO> getRefeicaoById(
@@ -44,6 +62,14 @@ public class RefeicaoController {
         return ResponseEntity.ok(refeicaoService.findById(idUser, id));
     }
 
+    /**
+     * Endpoint para listar as refeições de um usuário por um intervalo de datas.
+     *
+     * @param idUser ID do usuário cujas refeições serão listadas.
+     * @param start  Data de início do intervalo (ISO-8601).
+     * @param end    Data de fim do intervalo (ISO-8601).
+     * @return ResponseEntity contendo a lista de refeições encontradas e o status HTTP OK.
+     */
     @GetMapping("/{idUser}")
     @Operation(summary = "Lista as refeições de um usuário por um intervalo de datas")
     public ResponseEntity<List<RefeicaoResponseDTO>> getRefeicoesByDateRange(
@@ -54,6 +80,13 @@ public class RefeicaoController {
         return ResponseEntity.ok(refeicaoService.findByDateRange(idUser, start, end));
     }
 
+    /**
+     * Endpoint para deletar uma refeição de um usuário.
+     *
+     * @param idUser ID do usuário que possui a refeição a ser deletada.
+     * @param id     ID da refeição a ser deletada.
+     * @return ResponseEntity com status HTTP NO_CONTENT após a deleção bem-sucedida.
+     */
     @DeleteMapping("/{idUser}/{id}")
     @Operation(summary = "Deleta uma refeição de um usuário")
     public ResponseEntity<Void> deleteRefeicao(

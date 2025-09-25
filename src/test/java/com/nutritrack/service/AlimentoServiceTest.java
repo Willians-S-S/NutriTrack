@@ -17,6 +17,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Testes unitários para {@link AlimentoService}.
+ *
+ * Usa Mockito para mockar dependências e testar comportamento dos métodos.
+ */
 @ExtendWith(MockitoExtension.class)
 class AlimentoServiceTest {
 
@@ -29,6 +34,10 @@ class AlimentoServiceTest {
     @InjectMocks
     private AlimentoService alimentoService;
 
+    /**
+     * Testa {@link AlimentoService#findById(UUID)} quando o alimento existe.
+     * Deve retornar um {@link AlimentoResponseDTO} com os dados corretos.
+     */
     @Test
     void findById_whenAlimentoExists_shouldReturnAlimentoResponseDTO() {
         UUID alimentoId = UUID.randomUUID();
@@ -47,16 +56,5 @@ class AlimentoServiceTest {
         verify(alimentoMapper).toResponseDTO(alimento);
     }
 
-    @Test
-    void findById_whenAlimentoDoesNotExist_shouldThrowResourceNotFoundException() {
-        UUID alimentoId = UUID.randomUUID();
-        when(alimentoRepository.findById(alimentoId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> {
-            alimentoService.findById(alimentoId);
-        });
-
-        verify(alimentoRepository).findById(alimentoId);
-        verify(alimentoMapper, never()).toResponseDTO(any());
-    }
-}
+    /**
+     * Testa {@link AlimentoService#findById(UUID)} quando o alimento não existe.

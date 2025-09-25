@@ -9,9 +9,27 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * Serviço responsável pelo cálculo de nutrientes de uma refeição.
+ *
+ * Calcula o total de calorias, proteínas, carboidratos e gorduras de uma refeição
+ * somando os valores de cada item proporcional à quantidade consumida.
+ */
 @Service
 public class NutrientCalculatorService {
 
+    /**
+     * Calcula os nutrientes de uma refeição e retorna um DTO atualizado.
+     *
+     * Para cada item da refeição, multiplica os valores nutricionais pelo fator de porção
+     * (quantidade / 100). Retorna um {@link RefeicaoResponseDTO} com os totais
+     * calculados e arredondados para 3 casas decimais.
+     *
+     * @param refeicao A entidade {@link Refeicao} que contém os itens da refeição
+     * @param dto DTO base {@link RefeicaoResponseDTO} que será atualizado com os totais
+     * @return {@link RefeicaoResponseDTO} contendo os valores totais de calorias, proteínas,
+     * carboidratos e gorduras
+     */
     public RefeicaoResponseDTO calculateNutrients(Refeicao refeicao, RefeicaoResponseDTO dto) {
         BigDecimal totalCalorias = BigDecimal.ZERO;
         BigDecimal totalProteinas = BigDecimal.ZERO;

@@ -21,6 +21,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Serviço responsável pelas operações de CRUD e consultas de {@link Refeicao}.
+ *
+ * Este serviço gerencia a criação, leitura, listagem por período e exclusão de refeições,
+ * garantindo permissões de acesso e calculando os nutrientes totais através do
+ * {@link NutrientCalculatorService}.
+ */
 @Service
 @RequiredArgsConstructor
 public class RefeicaoService {
@@ -31,6 +38,14 @@ public class RefeicaoService {
     private final RefeicaoMapper refeicaoMapper;
     private final NutrientCalculatorService nutrientCalculatorService;
 
+    /**
+     * Cria uma nova refeição para o usuário especificado.
+     *
+     * @param usuarioId ID do usuário que está registrando a refeição
+     * @param requestDTO DTO contendo os dados da refeição a ser criada
+     * @return {@link RefeicaoResponseDTO} com os dados da refeição criada e totais de nutrientes calculados
+     * @throws ResourceNotFoundException se o usuário ou algum alimento não existir
+     */
     @Transactional
     public RefeicaoResponseDTO create(UUID usuarioId, RefeicaoRequestDTO requestDTO) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -55,6 +70,15 @@ public class RefeicaoService {
         return nutrientCalculatorService.calculateNutrients(savedRefeicao, responseDTO);
     }
 
+    /**
+     * Busca uma refeição específica de um usuário.
+     *
+     * @param usuarioId ID do usuário dono da refeição
+     * @param refeicaoId ID da refeição a ser buscada
+     * @return {@link RefeicaoResponseDTO} com os dados da refeição e totais de nutrientes calculados
+     * @throws ResourceNotFoundException se a refeição não existir
+     * @throws AccessDeniedException se o usuário não for dono da refeição
+     */
     @Transactional(readOnly = true)
     public RefeicaoResponseDTO findById(UUID usuarioId, UUID refeicaoId) {
         Refeicao refeicao = refeicaoRepository.findById(refeicaoId)
@@ -66,6 +90,14 @@ public class RefeicaoService {
         return nutrientCalculatorService.calculateNutrients(refeicao, responseDTO);
     }
 
+    /**
+     * Lista todas as refeições de um usuário em um intervalo de datas.
+     *
+     * @param usuarioId ID do usuário
+     * @param start Data inicial do intervalo
+     * @param end Data final do intervalo
+     * @return Lista de {@link RefeicaoResponseDTO} com os dados das refeições e nutrientes calculados
+     */
     @Transactional(readOnly = true)
     public List<RefeicaoResponseDTO> findByDateRange(UUID usuarioId, OffsetDateTime start, OffsetDateTime end) {
         return refeicaoRepository.findByUsuarioIdAndDataHoraBetween(usuarioId, start, end).stream()
@@ -76,6 +108,14 @@ public class RefeicaoService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Exclui uma refeição de um usuário.
+     *
+     * @param usuarioId ID do usuário dono da refeição
+     * @param refeicaoId ID da refeição a ser excluída
+     * @throws ResourceNotFoundException se a refeição não existir
+     * @throws AccessDeniedException se o usuário não for dono da refeição
+     */
     @Transactional
     public void delete(UUID usuarioId, UUID refeicaoId) {
         Refeicao refeicao = refeicaoRepository.findById(refeicaoId)
@@ -85,6 +125,6 @@ public class RefeicaoService {
         }
         refeicaoRepository.delete(refeicao);
     }
-    
+
     // Outros métodos como update, addItem, removeItem seriam implementados aqui
 }

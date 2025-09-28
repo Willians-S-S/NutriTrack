@@ -1,0 +1,18 @@
+@import '../../styles/variables.scss';
+
+.custom-button {
+    background-color: $primary-color;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .custom-button:hover {
+    background-color: $secondary-color;
+  }
+  

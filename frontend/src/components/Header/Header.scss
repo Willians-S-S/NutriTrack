@@ -1,0 +1,77 @@
+@import '../../styles/variables.scss';
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: $bg-light;
+  box-shadow: $shadow;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    & img {
+      height: 40px;
+    }
+  }
+
+  .nav {
+    display: flex;
+    gap: 24px;
+
+    a {
+      text-decoration: none;
+      color: $text-dark;
+      font-size: 15px;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $primary-color;
+      }
+
+      &.active {
+        color: $primary-color;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .notification {
+      position: relative;
+      cursor: pointer;
+      color: $text-dark;
+      
+      & i {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .badge {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 10px;
+        height: 10px;
+        background: red;
+        border-radius: 50%;
+      }
+    }
+
+    i {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: $text-dark;
+      cursor: pointer;
+    }
+  }
+}

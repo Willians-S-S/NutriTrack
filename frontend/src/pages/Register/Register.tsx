@@ -2,13 +2,16 @@ import React from "react";
 import logo from '../../assets/logo-white.png'
 import Button from '../../components/Button/Button'
 import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
 import "./Register.scss";
 
-function teste() {
-  console.log('botão funcionando')
-}
-
 const Register: React.FC = () => {
+
+  function teste(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    console.log("botao funcionando");
+  }
+
   return (
     <>
       <div className="container">

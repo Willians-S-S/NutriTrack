@@ -1,13 +1,16 @@
 import logo from "../../assets/logo-2.png"
 import Button from "../../components/Button/Button";
 import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
 import "./Login.scss";
 
-function teste() {
-  console.log(teste)
-}
-
 function Login() {
+
+  function teste(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    console.log("botao funcionando");
+  }
+  
   return (
     <div className="login-container">
       <div className="login-card">

@@ -1,0 +1,96 @@
+@use "../../styles/variables.scss" as *;
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: $bg-gray;
+    }
+    
+    
+    .login-card {
+    background: $bg-light;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    }
+    
+    
+    .logo {
+    height: 8rem;
+    }
+    
+    .subtitle {
+    font-size: 0.9rem;
+    color: $text-gray;
+    margin-bottom: 1.5rem;
+    }
+    
+    
+    .form-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    }
+    
+    
+    .login-form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    }
+    
+    
+    .login-form label {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+    color: $text-dark;
+    }
+    
+    
+    .login-form input {
+    padding: 0.7rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    }
+    
+    
+    .login-btn {
+    background-color: #00c853;
+    color: #fff;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    }
+    
+    
+    .login-btn:hover {
+    background-color: #00a844;
+    }
+    
+    
+    .register {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    }
+    
+    
+    .register a {
+    color: $primary-color;
+    font-weight: 500;
+    text-decoration: none;
+    }
+    
+    
+    .register a:hover {
+    text-decoration: underline;
+    }

@@ -6,7 +6,10 @@
   align-items: center;
   padding: 12px 24px;
   background: $bg-light;
-  box-shadow: $shadow;
+  height: 8vh;
+  min-height: 50px;
+  max-height: 80px;
+  border-bottom: 1px solid #eee;
 
   .logo {
     display: flex;

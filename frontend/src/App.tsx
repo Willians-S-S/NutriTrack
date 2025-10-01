@@ -8,10 +8,6 @@ import Profile from "./pages/Profile/Profile";
 import Progress from "./pages/Progress/Progress";
 import Foods from "./pages/Foods/Foods";
 
-// import Meals from "./pages/Meals/Meals";
-// import Progress from "./pages/Progress/Progress";
-// import Profile from "./pages/Profile/Profile";
-
 function AppWrapper() {
   return (
     <BrowserRouter>
@@ -35,9 +31,6 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/foods" element={<Foods />} />
-        {/* <Route path="/alimentos" element={<Meals />} />
-        <Route path="/progresso" element={<Progress />} />
-        <Route path="/perfil" element={<Profile />} /> */}
       </Routes>
     </>
   );

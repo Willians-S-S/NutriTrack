@@ -22,13 +22,13 @@ function Header() {
           to="/foods" 
           className={({ isActive }) => (isActive ? "active" : "")}
         >
-          Foods
+          Alimentos
         </NavLink>
         <NavLink 
           to="/progress" 
           className={({ isActive }) => (isActive ? "active" : "")}
         >
-          Progress
+          Progresso
         </NavLink>
       </nav>
 

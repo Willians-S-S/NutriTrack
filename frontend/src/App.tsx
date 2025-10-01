@@ -4,6 +4,10 @@ import Header from "./components/Header/Header";
 import Register from "./pages/Register/Register";
 import Login from "./pages/Login/Login";
 import Home from "./pages/Home/Home";
+import Profile from "./pages/Profile/Profile";
+import Progress from "./pages/Progress/Progress";
+import Foods from "./pages/Foods/Foods";
+
 // import Meals from "./pages/Meals/Meals";
 // import Progress from "./pages/Progress/Progress";
 // import Profile from "./pages/Profile/Profile";
@@ -28,6 +32,9 @@ function App() {
         <Route path="/registrar" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/progress" element={<Progress />} />
+        <Route path="/foods" element={<Foods />} />
         {/* <Route path="/alimentos" element={<Meals />} />
         <Route path="/progresso" element={<Progress />} />
         <Route path="/perfil" element={<Profile />} /> */}

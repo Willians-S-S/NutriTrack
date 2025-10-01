@@ -51,7 +51,7 @@
       position: relative;
       cursor: pointer;
       color: $text-dark;
-      
+
       & i {
         font-size: 24px;
         font-weight: bold;
@@ -66,6 +66,19 @@
         background: red;
         border-radius: 50%;
       }
+    }
+
+    /* mínimo ajuste para o link do perfil:
+       - sem sublinhado
+       - herda cor
+       - mesma "caixa" do ícone anterior */
+    .profile-link {
+      text-decoration: none;
+      color: inherit;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     i {

@@ -19,13 +19,13 @@ function Header() {
           Home
         </NavLink>
         <NavLink 
-          to="/alimentos" 
+          to="/foods" 
           className={({ isActive }) => (isActive ? "active" : "")}
         >
           Alimentos
         </NavLink>
         <NavLink 
-          to="/progresso" 
+          to="/progress" 
           className={({ isActive }) => (isActive ? "active" : "")}
         >
           Progresso
@@ -37,7 +37,11 @@ function Header() {
           <i><BsBell /></i>
           <span className="badge"></span>
         </div>
-        <i><CgProfile /></i>
+
+        {/* só envolvi o ícone com NavLink */}
+        <NavLink to="/profile" className="profile-link" aria-label="Profile">
+          <i><CgProfile /></i>
+        </NavLink>
       </div>
     </header>
   );

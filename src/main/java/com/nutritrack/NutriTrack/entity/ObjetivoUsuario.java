@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 /**
  * Enum que representa os objetivos do usuário em relação ao peso.

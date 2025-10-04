@@ -1,7 +1,7 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
-import com.nutritrack.entity.NivelAtividade;
-import com.nutritrack.entity.ObjetivoUsuario;
+import com.nutritrack.NutriTrack.entity.NivelAtividade;
+import com.nutritrack.NutriTrack.entity.ObjetivoUsuario;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;

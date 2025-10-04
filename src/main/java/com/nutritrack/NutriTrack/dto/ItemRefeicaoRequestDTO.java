@@ -1,6 +1,6 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
-import com.nutritrack.entity.UnidadeMedida;
+import com.nutritrack.NutriTrack.entity.UnidadeMedida;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

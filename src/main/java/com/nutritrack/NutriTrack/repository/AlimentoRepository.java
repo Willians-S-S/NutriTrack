@@ -1,6 +1,6 @@
-package com.nutritrack.repository;
+package com.nutritrack.NutriTrack.repository;
 
-import com.nutritrack.entity.Alimento;
+import com.nutritrack.NutriTrack.entity.Alimento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

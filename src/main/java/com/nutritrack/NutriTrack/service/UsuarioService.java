@@ -1,11 +1,11 @@
-package com.nutritrack.service;
+package com.nutritrack.NutriTrack.service;
 
-import com.nutritrack.dto.UserProfileUpdateDTO;
-import com.nutritrack.dto.UserResponseDTO;
-import com.nutritrack.entity.Usuario;
-import com.nutritrack.exception.ResourceNotFoundException;
-import com.nutritrack.mapper.UserMapper;
-import com.nutritrack.repository.UsuarioRepository;
+import com.nutritrack.NutriTrack.dto.UserProfileUpdateDTO;
+import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.entity.Usuario;
+import com.nutritrack.NutriTrack.exception.ResourceNotFoundException;
+import com.nutritrack.NutriTrack.mapper.UserMapper;
+import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,8 +1,8 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
-import com.nutritrack.entity.NivelAtividade;
-import com.nutritrack.entity.ObjetivoUsuario;
-import com.nutritrack.entity.Role;
+import com.nutritrack.NutriTrack.entity.NivelAtividade;
+import com.nutritrack.NutriTrack.entity.ObjetivoUsuario;
+import com.nutritrack.NutriTrack.entity.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;

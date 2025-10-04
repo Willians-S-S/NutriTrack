@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 /**
  * Enum que representa os perfis de acesso de um usuário no sistema.

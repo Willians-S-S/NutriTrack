@@ -1,4 +1,4 @@
-package com.nutritrack.exception;
+package com.nutritrack.NutriTrack.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

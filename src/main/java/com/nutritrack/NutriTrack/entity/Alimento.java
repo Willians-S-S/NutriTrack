@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

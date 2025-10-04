@@ -1,16 +1,17 @@
-package com.nutritrack.service;
+package com.nutritrack.NutriTrack.service;
 
-import com.nutritrack.dto.RegistroPesoRequestDTO;
-import com.nutritrack.dto.RegistroPesoResponseDTO;
-import com.nutritrack.entity.RegistroPeso;
-import com.nutritrack.entity.Usuario;
-import com.nutritrack.exception.AccessDeniedException;
-import com.nutritrack.exception.ConflictException;
-import com.nutritrack.exception.ResourceNotFoundException;
-import com.nutritrack.mapper.RegistroPesoMapper;
-import com.nutritrack.repository.RegistroPesoRepository;
-import com.nutritrack.repository.UsuarioRepository;
+import com.nutritrack.NutriTrack.dto.RegistroPesoRequestDTO;
+import com.nutritrack.NutriTrack.dto.RegistroPesoResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroPeso;
+import com.nutritrack.NutriTrack.entity.Usuario;
+import com.nutritrack.NutriTrack.exception.AccessDeniedException;
+import com.nutritrack.NutriTrack.exception.ConflictException;
+import com.nutritrack.NutriTrack.exception.ResourceNotFoundException;
+import com.nutritrack.NutriTrack.mapper.RegistroPesoMapper;
+import com.nutritrack.NutriTrack.repository.RegistroPesoRepository;
+import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +30,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RegistroPesoService {
 
-    private final RegistroPesoRepository registroPesoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final RegistroPesoRepository registroPesoRepository;
     private final RegistroPesoMapper registroPesoMapper;
 
     /**

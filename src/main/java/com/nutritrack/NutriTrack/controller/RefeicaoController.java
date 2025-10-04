@@ -1,13 +1,14 @@
-package com.nutritrack.controller;
+package com.nutritrack.NutriTrack.controller;
 
-import com.nutritrack.dto.RefeicaoRequestDTO;
-import com.nutritrack.dto.RefeicaoResponseDTO;
-import com.nutritrack.service.RefeicaoService;
+import com.nutritrack.NutriTrack.dto.RefeicaoRequestDTO;
+import com.nutritrack.NutriTrack.dto.RefeicaoResponseDTO;
+import com.nutritrack.NutriTrack.service.RefeicaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

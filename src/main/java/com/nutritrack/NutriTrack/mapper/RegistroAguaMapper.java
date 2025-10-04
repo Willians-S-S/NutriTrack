@@ -1,8 +1,8 @@
-package com.nutritrack.mapper;
+package com.nutritrack.NutriTrack.mapper;
 
-import com.nutritrack.dto.RegistroAguaRequestDTO;
-import com.nutritrack.dto.RegistroAguaResponseDTO;
-import com.nutritrack.entity.RegistroAgua;
+import com.nutritrack.NutriTrack.dto.RegistroAguaRequestDTO;
+import com.nutritrack.NutriTrack.dto.RegistroAguaResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroAgua;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,13 +1,14 @@
-package com.nutritrack.service;
+package com.nutritrack.NutriTrack.service;
 
-import com.nutritrack.dto.UserRequestDTO;
-import com.nutritrack.dto.UserResponseDTO;
-import com.nutritrack.entity.Role;
-import com.nutritrack.entity.Usuario;
-import com.nutritrack.exception.ConflictException;
-import com.nutritrack.mapper.UserMapper;
-import com.nutritrack.repository.UsuarioRepository;
+import com.nutritrack.NutriTrack.dto.UserRequestDTO;
+import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.entity.Role;
+import com.nutritrack.NutriTrack.entity.Usuario;
+import com.nutritrack.NutriTrack.exception.ConflictException;
+import com.nutritrack.NutriTrack.mapper.UserMapper;
+import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**

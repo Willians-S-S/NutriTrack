@@ -1,3 +1,19 @@
+package com.nutritrack.NutriTrack.controller;
+
+import com.nutritrack.NutriTrack.dto.UserProfileUpdateDTO;
+import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.service.UsuarioService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
 /**
  * Controller responsável pelo gerenciamento de usuários.
  * Fornece endpoints para listagem, consulta de perfil, atualização e exclusão de usuários.

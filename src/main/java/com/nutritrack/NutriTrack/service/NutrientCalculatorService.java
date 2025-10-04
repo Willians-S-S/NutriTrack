@@ -1,9 +1,9 @@
-package com.nutritrack.service;
+package com.nutritrack.NutriTrack.service;
 
-import com.nutritrack.dto.RefeicaoResponseDTO;
-import com.nutritrack.entity.Alimento;
-import com.nutritrack.entity.ItemRefeicao;
-import com.nutritrack.entity.Refeicao;
+import com.nutritrack.NutriTrack.dto.RefeicaoResponseDTO;
+import com.nutritrack.NutriTrack.entity.Alimento;
+import com.nutritrack.NutriTrack.entity.ItemRefeicao;
+import com.nutritrack.NutriTrack.entity.Refeicao;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

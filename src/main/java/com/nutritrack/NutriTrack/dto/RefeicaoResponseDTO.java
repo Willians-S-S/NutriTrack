@@ -1,6 +1,6 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
-import com.nutritrack.entity.TipoRefeicao;
+import com.nutritrack.NutriTrack.entity.TipoRefeicao;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;

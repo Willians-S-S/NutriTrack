@@ -1,13 +1,16 @@
-package com.nutritrack.controller;
+package com.nutritrack.NutriTrack.controller;
 
-import com.nutritrack.dto.AlimentoRequestDTO;
-import com.nutritrack.dto.AlimentoResponseDTO;
-import com.nutritrack.service.AlimentoService;
+import com.nutritrack.NutriTrack.dto.AlimentoRequestDTO;
+import com.nutritrack.NutriTrack.dto.AlimentoResponseDTO;
+import com.nutritrack.NutriTrack.service.AlimentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,7 +30,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Tag(name = "Alimentos", description = "Endpoints para gerenciar alimentos")
 public class AlimentoController {
-
     private final AlimentoService alimentoService;
 
     /**
@@ -51,7 +53,7 @@ public class AlimentoController {
      *
      * @param id  ID do alimento a ser buscado.
      * @return    ResponseEntity contendo um AlimentoResponseDTO se o alimento for encontrado.
-     * @throws    NotFoundException Se o alimento não for encontrado.
+     * @throws ChangeSetPersister.NotFoundException Se o alimento não for encontrado.
      */
     @GetMapping("/{id}")
     @Operation(summary = "Busca um alimento pelo ID")
@@ -66,7 +68,7 @@ public class AlimentoController {
      *
      * @param requestDTO  Objeto AlimentoRequestDTO contendo os dados do alimento a ser criado.
      * @return            ResponseEntity contendo o AlimentoResponseDTO do alimento criado e o status HTTP 201 (CREATED).
-     * @throws            BadRequestException Se os dados de entrada forem inválidos.
+     * @throws BadRequestException Se os dados de entrada forem inválidos.
      */
     @PostMapping
     @Operation(summary = "Cria um novo alimento (Requer ROLE_ADMIN)")
@@ -83,7 +85,7 @@ public class AlimentoController {
      * @param id          ID do alimento a ser atualizado.
      * @param requestDTO  Objeto AlimentoRequestDTO contendo os dados atualizados do alimento.
      * @return            ResponseEntity contendo o AlimentoResponseDTO do alimento atualizado.
-     * @throws            NotFoundException Se o alimento não for encontrado.
+     * @throws ChangeSetPersister.NotFoundException Se o alimento não for encontrado.
      * @throws            BadRequestException Se os dados de entrada forem inválidos.
      */
     @PutMapping("/{id}")
@@ -99,7 +101,7 @@ public class AlimentoController {
      *
      * @param id  ID do alimento a ser deletado.
      * @return    ResponseEntity com status HTTP 204 (NO_CONTENT).
-     * @throws    NotFoundException Se o alimento não for encontrado.
+     * @throws ChangeSetPersister.NotFoundException Se o alimento não for encontrado.
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Deleta um alimento (Requer ROLE_ADMIN)")

@@ -1,8 +1,8 @@
-package com.nutritrack.mapper;
+package com.nutritrack.NutriTrack.mapper;
 
-import com.nutritrack.dto.RegistroPesoRequestDTO;
-import com.nutritrack.dto.RegistroPesoResponseDTO;
-import com.nutritrack.entity.RegistroPeso;
+import com.nutritrack.NutriTrack.dto.RegistroPesoRequestDTO;
+import com.nutritrack.NutriTrack.dto.RegistroPesoResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroPeso;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

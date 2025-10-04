@@ -1,12 +1,13 @@
-package com.nutritrack.controller;
+package com.nutritrack.NutriTrack.controller;
 
-import com.nutritrack.dto.UserRequestDTO;
-import com.nutritrack.dto.UserResponseDTO;
-import com.nutritrack.service.AuthService;
+import com.nutritrack.NutriTrack.dto.UserRequestDTO;
+import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

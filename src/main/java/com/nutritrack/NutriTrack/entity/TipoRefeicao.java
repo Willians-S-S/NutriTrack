@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 /**
  * Enum que representa os tipos de refeição de um usuário.

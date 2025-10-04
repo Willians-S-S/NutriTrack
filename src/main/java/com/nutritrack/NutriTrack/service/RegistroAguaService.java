@@ -1,15 +1,15 @@
-package com.nutritrack.service;
+package com.nutritrack.NutriTrack.service;
 
-import com.nutritrack.dto.RegistroAguaDiarioDTO;
-import com.nutritrack.dto.RegistroAguaRequestDTO;
-import com.nutritrack.dto.RegistroAguaResponseDTO;
-import com.nutritrack.entity.RegistroAgua;
-import com.nutritrack.entity.Usuario;
-import com.nutritrack.exception.AccessDeniedException;
-import com.nutritrack.exception.ResourceNotFoundException;
-import com.nutritrack.mapper.RegistroAguaMapper;
-import com.nutritrack.repository.RegistroAguaRepository;
-import com.nutritrack.repository.UsuarioRepository;
+import com.nutritrack.NutriTrack.dto.RegistroAguaDiarioDTO;
+import com.nutritrack.NutriTrack.dto.RegistroAguaRequestDTO;
+import com.nutritrack.NutriTrack.dto.RegistroAguaResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroAgua;
+import com.nutritrack.NutriTrack.entity.Usuario;
+import com.nutritrack.NutriTrack.exception.AccessDeniedException;
+import com.nutritrack.NutriTrack.exception.ResourceNotFoundException;
+import com.nutritrack.NutriTrack.mapper.RegistroAguaMapper;
+import com.nutritrack.NutriTrack.repository.RegistroAguaRepository;
+import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

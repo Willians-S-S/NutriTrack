@@ -1,6 +1,6 @@
-package com.nutritrack.repository;
+package com.nutritrack.NutriTrack.repository;
 
-import com.nutritrack.entity.RegistroAgua;
+import com.nutritrack.NutriTrack.entity.RegistroAgua;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

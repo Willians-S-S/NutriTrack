@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 /**
  * Enum que representa as unidades de medida utilizadas nos itens de refeição.

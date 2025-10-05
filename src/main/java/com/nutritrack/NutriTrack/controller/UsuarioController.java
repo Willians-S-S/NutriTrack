@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -40,6 +41,7 @@ public class UsuarioController {
      * @param pageable Informações de paginação (número da página, tamanho, ordenação)
      * @return Página de {@link UserResponseDTO} contendo os usuários
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(Pageable pageable) {
         return ResponseEntity.ok(usuarioService.findAll(pageable));
@@ -51,6 +53,7 @@ public class UsuarioController {
      * @param id UUID do usuário
      * @return {@link UserResponseDTO} contendo os dados do perfil
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
     @GetMapping("/me/{id}")
     public ResponseEntity<UserResponseDTO> getCurrentUserProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.findById(id));
@@ -63,6 +66,7 @@ public class UsuarioController {
      * @param updateDTO DTO contendo os dados para atualização do perfil
      * @return {@link UserResponseDTO} com os dados atualizados do usuário
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
     @PutMapping("/me/{id}")
     public ResponseEntity<UserResponseDTO> updateCurrentUserProfile(
             @PathVariable UUID id,
@@ -77,6 +81,7 @@ public class UsuarioController {
      * @param id UUID do usuário a ser deletado
      * @return {@link ResponseEntity} com status 204 NO CONTENT
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         usuarioService.delete(id);

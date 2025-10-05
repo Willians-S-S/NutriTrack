@@ -7,41 +7,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Entidade que representa um usuário do sistema.
- * Contém informações pessoais, dados de perfil e relacionamentos com registros de peso, água e refeições.
- *
- * Campos:
- * <ul>
- *   <li>id: UUID único do usuário (chave primária)</li>
- *   <li>nome: Nome completo do usuário, obrigatório</li>
- *   <li>email: Email único do usuário, obrigatório</li>
- *   <li>senhaHash: Hash da senha do usuário, obrigatório</li>
- *   <li>alturaM: Altura do usuário em metros, obrigatório</li>
- *   <li>dataNascimento: Data de nascimento do usuário, obrigatório</li>
- *   <li>nivelAtividade: Nível de atividade física do usuário, obrigatório</li>
- *   <li>objetivoUsuario: Objetivo do usuário (perder, manter ou ganhar peso), obrigatório</li>
- *   <li>role: Perfil de acesso do usuário (ROLE_USER, ROLE_ADMIN), obrigatório</li>
- *   <li>criadoEm: Data e hora de criação do registro, preenchida automaticamente</li>
- *   <li>atualizadoEm: Data e hora da última atualização do registro, atualizada automaticamente</li>
- *   <li>refeicoes: Lista de refeições do usuário (OneToMany, cascade ALL, orphanRemoval)</li>
- *   <li>registrosPeso: Lista de registros de peso do usuário (OneToMany, cascade ALL, orphanRemoval)</li>
- *   <li>registrosAgua: Lista de registros de consumo de água do usuário (OneToMany, cascade ALL, orphanRemoval)</li>
- * </ul>
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -82,7 +65,8 @@ public class Usuario {
     @UpdateTimestamp
     @Column(name = "atualizado_em")
     private OffsetDateTime atualizadoEm;
-    
+
+    // Relacionamentos
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Refeicao> refeicoes;
 
@@ -91,4 +75,40 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RegistroAgua> registrosAgua;
+
+    // Métodos da interface UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return senhaHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

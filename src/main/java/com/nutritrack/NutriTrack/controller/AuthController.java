@@ -1,5 +1,7 @@
 package com.nutritrack.NutriTrack.controller;
 
+import com.nutritrack.NutriTrack.dto.AuthRequest;
+import com.nutritrack.NutriTrack.dto.JwtResponse;
 import com.nutritrack.NutriTrack.dto.UserRequestDTO;
 import com.nutritrack.NutriTrack.dto.UserResponseDTO;
 import com.nutritrack.NutriTrack.service.AuthService;
@@ -37,5 +39,23 @@ public class AuthController {
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request) {
         UserResponseDTO registeredUser = authService.register(request);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    }
+
+    /**
+     * Endpoint para autenticar um usuário.
+     * <p>
+     * Recebe um objeto {@code AuthRequest} com email e senha, valida as credenciais
+     * e, se bem-sucedido, delega ao {@code AuthService} para realizar o login
+     * e gerar um token JWT.
+     *
+     * @param request O corpo da requisição contendo as credenciais de autenticação (email e senha).
+     * @return Uma {@link ResponseEntity} com status HTTP 200 (OK) contendo o {@link JwtResponse}
+     * com o token JWT gerado.
+     * @throws  (ou similar) se as credenciais forem inválidas.
+     */
+    @PostMapping("/login")
+    @Operation(summary = "Autentica um usuário e retorna um token JWT")
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

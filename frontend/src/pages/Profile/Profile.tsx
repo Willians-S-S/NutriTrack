@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import "./Profile.scss";
 import Button from "../../components/Button/Button";
+import { jwtDecode } from "jwt-decode";
 
 type Goal = "perder_peso" | "manter_peso" | "ganhar_peso" | "performance" | "saude";
 type Activity = "sedentario" | "leve" | "moderado" | "alto" | "atleta";
@@ -13,16 +14,22 @@ type ProfileData = {
   activity: Activity;
 };
 
+interface JwtPayload {
+  userId: string;
+}
+
 export default function Profile() {
   const [data, setData] = useState<ProfileData | null>(null);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) return;
-
       const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const decodedToken = jwtDecode<JwtPayload>(token);
+      const userId = decodedToken.userId;
+
       const response = await fetch(`/api/v1/usuarios/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -103,8 +110,11 @@ export default function Profile() {
     e?.preventDefault();
     if (!validateForm()) return;
 
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const decodedToken = jwtDecode<JwtPayload>(token);
+    const userId = decodedToken.userId;
 
     setLoading(true);
     try {
@@ -115,7 +125,7 @@ export default function Profile() {
         nivelAtividade: activity.toUpperCase(),
         objetivoUsuario: goal.toUpperCase(),
       };
-      const token = localStorage.getItem("token");
+      
       const response = await fetch(`/api/v1/usuarios/${userId}`, {
         method: 'PATCH',
         headers: {

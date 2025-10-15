@@ -45,6 +45,7 @@ public class AuthorizationConfig {
      */
     public boolean isAuthorized(UUID id, Authentication authentication){
         log.debug("--- DEBUG DE AUTORIZAÇÃO ---");
+        log.debug("Principal class: {}", authentication.getPrincipal().getClass().getName());
         Usuario user = (Usuario) authentication.getPrincipal();
         log.debug("ID do Principal (usuário logado): {}", user.getId());
         log.debug("ID do Recurso (URL): {}", id);

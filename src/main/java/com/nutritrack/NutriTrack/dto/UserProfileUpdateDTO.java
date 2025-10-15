@@ -21,24 +21,19 @@ import java.math.BigDecimal;
  */
 public record UserProfileUpdateDTO(
     @Schema(description = "Novo nome do usuário")
-    @NotBlank(message = "O nome não pode estar em branco.")
     String nome,
 
     @Schema(description = "Nova altura do usuário em metros")
-    @NotNull(message = "A altura não pode ser nula.")
     @DecimalMin(value = "0.5", message = "A altura deve ser maior que 0.5 metros.")
     BigDecimal alturaM,
 
     @Schema(description = "Novo peso do usuário em kg")
-    @NotNull(message = "O peso não pode ser nulo.")
     @DecimalMin(value = "20.0", message = "O peso deve ser maior que 20.0 kg.")
     BigDecimal peso,
 
     @Schema(description = "Novo nível de atividade física do usuário")
-    @NotNull(message = "O nível de atividade não pode ser nulo.")
     NivelAtividade nivelAtividade,
 
     @Schema(description = "Novo objetivo do usuário")
-    @NotNull(message = "O objetivo do usuário não pode ser nulo.")
     ObjetivoUsuario objetivoUsuario
 ) {}

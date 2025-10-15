@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -73,6 +74,7 @@ public class UsuarioService {
      */
     @Transactional
     public UserResponseDTO updateProfile(UUID userId, UserProfileUpdateDTO updateDTO) {
+        System.out.println("updateDTO: " + updateDTO);
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + userId));
 
@@ -90,10 +92,17 @@ public class UsuarioService {
         }
 
         if (updateDTO.peso() != null) {
-            RegistroPeso novoRegistroPeso = new RegistroPeso();
-            novoRegistroPeso.setUsuario(usuario);
-            novoRegistroPeso.setPesoKg(updateDTO.peso());
-            registroPesoRepository.save(novoRegistroPeso);
+            LocalDate today = java.time.LocalDate.now();
+            RegistroPeso registroPeso = registroPesoRepository.findByUsuario_IdAndDataMedicao(userId, today)
+                .orElse(new RegistroPeso());
+
+            registroPeso.setUsuario(usuario);
+            registroPeso.setPesoKg(updateDTO.peso());
+            registroPeso.setDataMedicao(today);
+            
+            if (registroPeso.getId() == null) {
+                usuario.getRegistrosPeso().add(registroPeso);
+            }
         }
 
         Usuario updatedUsuario = usuarioRepository.save(usuario);

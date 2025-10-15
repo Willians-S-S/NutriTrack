@@ -50,7 +50,7 @@ public class RegistroPesoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + usuarioId));
 
-        registroPesoRepository.findByUsuarioIdAndDataMedicao(usuarioId, requestDTO.dataMedicao())
+        registroPesoRepository.findByUsuario_IdAndDataMedicao(usuarioId, requestDTO.dataMedicao())
             .ifPresent(r -> {
                 throw new ConflictException("Já existe um registro de peso para a data: " + requestDTO.dataMedicao());
             });
@@ -85,7 +85,7 @@ public class RegistroPesoService {
         }
 
         if (!registro.getDataMedicao().equals(requestDTO.dataMedicao())) {
-            registroPesoRepository.findByUsuarioIdAndDataMedicao(usuarioId, requestDTO.dataMedicao())
+            registroPesoRepository.findByUsuario_IdAndDataMedicao(usuarioId, requestDTO.dataMedicao())
                 .ifPresent(r -> {
                     if (!r.getId().equals(registroId)) {
                         throw new ConflictException("Já existe um registro de peso para a data: " + requestDTO.dataMedicao());
@@ -110,7 +110,7 @@ public class RegistroPesoService {
      */
     @Transactional(readOnly = true)
     public List<RegistroPesoResponseDTO> findByDateRange(UUID usuarioId, LocalDate start, LocalDate end) {
-        return registroPesoRepository.findByUsuarioIdAndDataMedicaoBetween(usuarioId, start, end).stream()
+        return registroPesoRepository.findByUsuario_IdAndDataMedicaoBetween(usuarioId, start, end).stream()
             .map(registroPesoMapper::toResponseDTO)
             .collect(Collectors.toList());
     }

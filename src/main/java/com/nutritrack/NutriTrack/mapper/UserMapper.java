@@ -5,6 +5,7 @@ import com.nutritrack.NutriTrack.dto.UserResponseDTO;
 import com.nutritrack.NutriTrack.entity.Usuario;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 /**
@@ -44,5 +45,6 @@ public interface UserMapper {
      * @param usuario entidade Usuario
      * @return DTO de resposta com os dados do usuário
      */
+    @Mapping(target = "peso", ignore = true)
     UserResponseDTO toResponseDTO(Usuario usuario);
 }

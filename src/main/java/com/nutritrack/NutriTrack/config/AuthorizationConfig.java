@@ -1,13 +1,13 @@
 package com.nutritrack.NutriTrack.config;
 
 import com.nutritrack.NutriTrack.entity.Usuario;
-import com.nutritrack.NutriTrack.exception.ResourceNotFoundException;
+
 import com.nutritrack.NutriTrack.repository.UsuarioRepository;
-import com.nutritrack.NutriTrack.service.JwtService;
-import io.jsonwebtoken.Jwt;
+
 import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -23,10 +23,11 @@ import java.util.UUID;
  */
 @RequiredArgsConstructor
 @Component("authorization")
+@Slf4j
 public class AuthorizationConfig {
 
-    private final UsuarioRepository clientRepository;
-    private final JwtService jwtService;
+    private final UsuarioRepository usuarioRepository;
+
 
 
     /**
@@ -43,11 +44,14 @@ public class AuthorizationConfig {
      * {@code false} caso contrário.
      */
     public boolean isAuthorized(UUID id, Authentication authentication){
-        Usuario usuario = clientRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("O usuario informado não foi encontrado."));
-
+        log.debug("--- DEBUG DE AUTORIZAÇÃO ---");
         Usuario user = (Usuario) authentication.getPrincipal();
-
-        return user.getId().equals(id);
+        log.debug("ID do Principal (usuário logado): {}", user.getId());
+        log.debug("ID do Recurso (URL): {}", id);
+        log.debug("Authorities: {}", authentication.getAuthorities());
+        boolean isMatch = user.getId().equals(id);
+        log.debug("IDs são iguais? {}", isMatch);
+        log.debug("---------------------------");
+        return isMatch;
     }
 }

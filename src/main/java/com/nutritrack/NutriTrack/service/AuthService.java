@@ -11,7 +11,7 @@ import com.nutritrack.NutriTrack.exception.ConflictException;
 import com.nutritrack.NutriTrack.mapper.UserMapper;
 import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

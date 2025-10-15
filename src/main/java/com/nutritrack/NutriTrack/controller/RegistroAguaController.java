@@ -61,7 +61,7 @@ public class RegistroAguaController {
      * @param end Data de fim (YYYY-MM-DD)
      * @return Lista de {@link RegistroAguaResponseDTO} com os registros encontrados
      */
-    @GetMapping("/{idUser}")
+    @GetMapping("/usuario/{idUser}")
     public ResponseEntity<List<RegistroAguaResponseDTO>> getRegistrosByDateRange(
             @PathVariable UUID idUser,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,

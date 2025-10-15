@@ -2,9 +2,11 @@ package com.nutritrack.NutriTrack.service;
 
 import com.nutritrack.NutriTrack.dto.UserProfileUpdateDTO;
 import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroPeso;
 import com.nutritrack.NutriTrack.entity.Usuario;
 import com.nutritrack.NutriTrack.exception.ResourceNotFoundException;
 import com.nutritrack.NutriTrack.mapper.UserMapper;
+import com.nutritrack.NutriTrack.repository.RegistroPesoRepository;
 import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final RegistroPesoRepository registroPesoRepository;
     private final UserMapper userMapper;
 
     /**
@@ -35,9 +38,27 @@ public class UsuarioService {
      */
     @Transactional(readOnly = true)
     public UserResponseDTO findById(UUID id) {
-        return usuarioRepository.findById(id)
-            .map(userMapper::toResponseDTO)
+        Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + id));
+
+        var ultimoRegistroPeso = registroPesoRepository.findFirstByUsuarioOrderByDataMedicaoDesc(usuario);
+        var peso = ultimoRegistroPeso.map(RegistroPeso::getPesoKg).orElse(null);
+
+        UserResponseDTO dto = userMapper.toResponseDTO(usuario);
+
+        return new UserResponseDTO(
+            dto.id(), 
+            dto.nome(), 
+            dto.email(), 
+            dto.alturaM(), 
+            peso, 
+            dto.dataNascimento(), 
+            dto.nivelAtividade(), 
+            dto.objetivoUsuario(), 
+            dto.role(), 
+            dto.criadoEm(), 
+            dto.atualizadoEm()
+        );
     }
 
     /**
@@ -55,12 +76,45 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + userId));
 
-        usuario.setAlturaM(updateDTO.alturaM());
-        usuario.setNivelAtividade(updateDTO.nivelAtividade());
-        usuario.setObjetivoUsuario(updateDTO.objetivoUsuario());
+        if (updateDTO.nome() != null) {
+            usuario.setNome(updateDTO.nome());
+        }
+        if (updateDTO.alturaM() != null) {
+            usuario.setAlturaM(updateDTO.alturaM());
+        }
+        if (updateDTO.nivelAtividade() != null) {
+            usuario.setNivelAtividade(updateDTO.nivelAtividade());
+        }
+        if (updateDTO.objetivoUsuario() != null) {
+            usuario.setObjetivoUsuario(updateDTO.objetivoUsuario());
+        }
+
+        if (updateDTO.peso() != null) {
+            RegistroPeso novoRegistroPeso = new RegistroPeso();
+            novoRegistroPeso.setUsuario(usuario);
+            novoRegistroPeso.setPesoKg(updateDTO.peso());
+            registroPesoRepository.save(novoRegistroPeso);
+        }
 
         Usuario updatedUsuario = usuarioRepository.save(usuario);
-        return userMapper.toResponseDTO(updatedUsuario);
+
+        var ultimoRegistroPeso = registroPesoRepository.findFirstByUsuarioOrderByDataMedicaoDesc(updatedUsuario);
+        var peso = ultimoRegistroPeso.map(RegistroPeso::getPesoKg).orElse(null);
+
+        UserResponseDTO dto = userMapper.toResponseDTO(updatedUsuario);
+        return new UserResponseDTO(
+            dto.id(), 
+            dto.nome(), 
+            dto.email(), 
+            dto.alturaM(), 
+            peso, 
+            dto.dataNascimento(), 
+            dto.nivelAtividade(), 
+            dto.objetivoUsuario(), 
+            dto.role(), 
+            dto.criadoEm(), 
+            dto.atualizadoEm()
+        );
     }
 
     /**

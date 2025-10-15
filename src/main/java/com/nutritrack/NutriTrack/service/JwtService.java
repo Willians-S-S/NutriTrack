@@ -15,7 +15,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+
+
 import java.util.function.Function;
 
 /**
@@ -52,16 +53,6 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /**
-     * Extrai o ID do usuário (claim customizado "userId") do token JWT.
-     *
-     * @param token O JWT a ser processado.
-     * @return O ID do usuário em formato {@link UUID}.
-     */
-    public UUID extractUserId(String token) {
-        String userIdStr = extractClaim(token, claims -> claims.get("userId", String.class));
-        return UUID.fromString(userIdStr);
-    }
 
     /**
      * Extrai uma claim específica do token JWT.

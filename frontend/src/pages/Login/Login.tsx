@@ -1,14 +1,46 @@
+import { jwtDecode } from "jwt-decode";
 import logo from "../../assets/logo-2.png"
 import Button from "../../components/Button/Button";
-import { Link } from "react-router-dom";
-import type { MouseEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { MouseEvent, useState } from "react";
 import "./Login.scss";
 
 function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  function teste(e: MouseEvent<HTMLButtonElement>) {
+  async function handleLogin(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    console.log("botao funcionando");
+    
+    try {
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+
+        const decodedToken: { sub: string, name: string, userId: string } = jwtDecode(data.token);
+        const userId = decodedToken.userId;
+        const userName = decodedToken.name;
+
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('userName', userName);
+
+        navigate('/');
+      } else {
+        alert('E-mail ou senha inválidos');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      alert('Ocorreu um erro ao tentar fazer login. Tente novamente.');
+    }
   }
   
   return (
@@ -25,12 +57,20 @@ function Login() {
             type="email"
             id="email"
             placeholder="seuemail@exemplo.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <label htmlFor="password">Senha</label>
-          <input type="password" id="password" placeholder="Sua senha" />
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="Sua senha" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-          <Button title='Login' onClick={teste}/>
+          <Button title='Login' onClick={handleLogin}/>
         </form>
 
         <p className="register">

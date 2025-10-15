@@ -40,6 +40,9 @@ public record UserResponseDTO(
     @Schema(description = "Altura em metros")
     BigDecimal alturaM,
 
+    @Schema(description = "Peso em kg")
+    BigDecimal peso,
+
     @Schema(description = "Data de nascimento")
     LocalDate dataNascimento,
 

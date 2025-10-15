@@ -5,15 +5,21 @@ package com.nutritrack.NutriTrack.entity;
  *
  * Valores:
  * <ul>
- *   <li>CAFE_DA_MANHA: Café da manhã</li>
+ *   <li>CAFE_MANHA: Café da manhã</li>
+ *   <li>LANCHE: Lanche ou refeição intermediária</li>
  *   <li>ALMOCO: Almoço</li>
  *   <li>JANTAR: Jantar</li>
- *   <li>LANCHE: Lanche ou refeição intermediária</li>
+ *   <li>CEIA: Ceia</li>
+ *   <li>POS_TREINO: Pós-treino</li>
+ *   <li>OUTRO: Outro tipo de refeição</li>
  * </ul>
  */
 public enum TipoRefeicao {
-    CAFE_DA_MANHA,
+    CAFE_MANHA,
+    LANCHE,
     ALMOCO,
     JANTAR,
-    LANCHE
-}
+    CEIA,
+    POS_TREINO,
+    OUTRO;
+

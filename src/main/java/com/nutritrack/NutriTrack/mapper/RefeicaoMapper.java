@@ -6,6 +6,7 @@ import com.nutritrack.NutriTrack.entity.ItemRefeicao;
 import com.nutritrack.NutriTrack.entity.Refeicao;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  * Mapper para conversão entre entidades de refeição ({@link Refeicao}, {@link ItemRefeicao}, {@link Alimento})
@@ -69,6 +70,11 @@ public interface RefeicaoMapper {
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "criadoEm", ignore = true)
     Refeicao toEntity(RefeicaoRequestDTO requestDTO);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "criadoEm", ignore = true)
+    void updateFromRequest(RefeicaoRequestDTO requestDTO, @MappingTarget Refeicao refeicao);
 
     /**
      * Converte um {@link Refeicao} em {@link RefeicaoResponseDTO}.

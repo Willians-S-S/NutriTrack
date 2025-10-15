@@ -22,8 +22,8 @@ import java.util.UUID;
  * <p>Endpoints disponíveis:</p>
  * <ul>
  *     <li>GET /api/v1/usuarios - Lista todos os usuários com paginação</li>
- *     <li>GET /api/v1/usuarios/me/{id} - Retorna o perfil de um usuário específico</li>
- *     <li>PUT /api/v1/usuarios/me/{id} - Atualiza o perfil do usuário</li>
+ *     <li>GET /api/v1/usuarios/{id} - Retorna o perfil de um usuário específico</li>
+ *     <li>PATCH /api/v1/usuarios/{id} - Atualiza o perfil do usuário</li>
  *     <li>DELETE /api/v1/usuarios/{id} - Deleta um usuário</li>
  * </ul>
  */

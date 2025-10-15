@@ -22,4 +22,4 @@ public enum TipoRefeicao {
     CEIA,
     POS_TREINO,
     OUTRO;
-
+}

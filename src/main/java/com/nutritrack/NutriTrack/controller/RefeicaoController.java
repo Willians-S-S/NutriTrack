@@ -71,7 +71,7 @@ public class RefeicaoController {
      * @param end    Data de fim do intervalo (ISO-8601).
      * @return ResponseEntity contendo a lista de refeições encontradas e o status HTTP OK.
      */
-    @GetMapping("/{idUser}")
+    @GetMapping("/usuario/{idUser}")
     @Operation(summary = "Lista as refeições de um usuário por um intervalo de datas")
     public ResponseEntity<List<RefeicaoResponseDTO>> getRefeicoesByDateRange(
             @PathVariable UUID idUser,
@@ -79,6 +79,16 @@ public class RefeicaoController {
             @Parameter(description = "Data de fim (ISO-8601)", required = true) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end
     ) {
         return ResponseEntity.ok(refeicaoService.findByDateRange(idUser, start, end));
+    }
+
+    @PutMapping("/{idUser}/{id}")
+    @Operation(summary = "Atualiza uma refeição de um usuário")
+    public ResponseEntity<RefeicaoResponseDTO> updateRefeicao(
+            @PathVariable UUID idUser,
+            @PathVariable UUID id,
+            @Valid @RequestBody RefeicaoRequestDTO requestDTO
+    ) {
+        return ResponseEntity.ok(refeicaoService.update(idUser, id, requestDTO));
     }
 
     /**

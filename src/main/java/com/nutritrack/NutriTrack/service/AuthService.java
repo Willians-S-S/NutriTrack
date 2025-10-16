@@ -4,6 +4,7 @@ import com.nutritrack.NutriTrack.dto.AuthRequest;
 import com.nutritrack.NutriTrack.dto.JwtResponse;
 import com.nutritrack.NutriTrack.dto.UserRequestDTO;
 import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.entity.RegistroPeso;
 import com.nutritrack.NutriTrack.entity.Role;
 import com.nutritrack.NutriTrack.entity.Usuario;
 import com.nutritrack.NutriTrack.exception.BusinessException;
@@ -11,7 +12,10 @@ import com.nutritrack.NutriTrack.exception.ConflictException;
 import com.nutritrack.NutriTrack.mapper.UserMapper;
 import com.nutritrack.NutriTrack.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +56,17 @@ public class AuthService {
         Usuario usuario = userMapper.toEntity(request);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
         usuario.setRole(Role.ROLE_USER);
+
+        RegistroPeso registroPeso = new RegistroPeso();
+        registroPeso.setPesoKg(request.peso());
+        registroPeso.setDataMedicao(LocalDate.now());
+        registroPeso.setUsuario(usuario);
+
+        if (usuario.getRegistrosPeso() == null) {
+            usuario.setRegistrosPeso(new ArrayList<>());
+        }
+        usuario.getRegistrosPeso().add(registroPeso);
+
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
         return userMapper.toResponseDTO(savedUsuario);

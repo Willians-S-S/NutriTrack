@@ -1,5 +1,6 @@
 package com.nutritrack.NutriTrack.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nutritrack.NutriTrack.entity.NivelAtividade;
 import com.nutritrack.NutriTrack.entity.ObjetivoUsuario;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,8 +19,8 @@ import java.time.LocalDate;
  *   <li>senha: Senha do usuário, obrigatória, mínimo de 8 caracteres</li>
  *   <li>alturaM: Altura do usuário em metros, obrigatória e maior que 0.5</li>
  *   <li>dataNascimento: Data de nascimento do usuário, obrigatória e no passado</li>
- *   <li>nivelAtividade: Nível de atividade física do usuário, obrigatório</li>
- *   <li>objetivoUsuario: Objetivo do usuário, obrigatório</li>
+ *   <li>nivelAtividade: Nível de atividade física do usuário (SEDENTARIO, LEVE, MODERADO, ALTO, ATLETA)</li>
+ *   <li>objetivoUsuario: Objetivo do usuário (PERDER_PESO, MANTER_PESO, GANHAR_PESO, PERFORMANCE, SAUDE)</li>
  * </ul>
  */
 public record UserRequestDTO(
@@ -46,6 +47,7 @@ public record UserRequestDTO(
     @Schema(description = "Data de nascimento do usuário (formato YYYY-MM-DD)")
     @NotNull(message = "A data de nascimento não pode ser nula.")
     @Past(message = "A data de nascimento deve ser no passado.")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dataNascimento,
 
     @Schema(description = "Nível de atividade física do usuário")
@@ -54,5 +56,10 @@ public record UserRequestDTO(
 
     @Schema(description = "Objetivo do usuário")
     @NotNull(message = "O objetivo do usuário não pode ser nulo.")
-    ObjetivoUsuario objetivoUsuario
+    ObjetivoUsuario objetivoUsuario,
+
+    @Schema(description = "Peso em kg")
+    @NotNull(message = "O peso não pode ser nulo.")
+    @DecimalMin(value = "20.0", message = "O peso deve ser maior que 20kg.")
+    BigDecimal peso
 ) {}

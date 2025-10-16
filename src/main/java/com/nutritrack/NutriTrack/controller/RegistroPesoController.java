@@ -43,12 +43,12 @@ public class RegistroPesoController {
      * @param requestDTO DTO com os dados do registro de peso
      * @return Registro criado encapsulado em {@link RegistroPesoResponseDTO} com status 201 CREATED
      */
-    @PostMapping
+    @PostMapping("/{idUser}")
     public ResponseEntity<RegistroPesoResponseDTO> createRegistroPeso(
-        UUID id,
+        @PathVariable UUID idUser,
         @Valid @RequestBody RegistroPesoRequestDTO requestDTO
     ) {
-        RegistroPesoResponseDTO createdRegistro = registroPesoService.create(id, requestDTO);
+        RegistroPesoResponseDTO createdRegistro = registroPesoService.create(idUser, requestDTO);
         return new ResponseEntity<>(createdRegistro, HttpStatus.CREATED);
     }
 
@@ -60,9 +60,9 @@ public class RegistroPesoController {
      * @param end Data de fim (YYYY-MM-DD)
      * @return Lista de {@link RegistroPesoResponseDTO} com os registros encontrados
      */
-    @GetMapping("/{id}")
+    @GetMapping("/usuario/{id}")
     public ResponseEntity<List<RegistroPesoResponseDTO>> getRegistrosByDateRange(
-        UUID id,
+        @PathVariable UUID id,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {

@@ -46,12 +46,12 @@ public class Usuario implements UserDetails {
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = com.nutritrack.NutriTrack.entity.converter.NivelAtividadeConverter.class)
     @Column(name = "nivel_atividade", nullable = false)
     private NivelAtividade nivelAtividade;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "objetivo_usuario", nullable = false)
+    @Convert(converter = com.nutritrack.NutriTrack.entity.converter.ObjetivoUsuarioConverter.class)
+    @Column(name = "objetivo", nullable = false)
     private ObjetivoUsuario objetivoUsuario;
 
     @Enumerated(EnumType.STRING)

@@ -6,7 +6,7 @@ import com.nutritrack.NutriTrack.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +22,8 @@ import java.util.UUID;
  * <p>Endpoints disponíveis:</p>
  * <ul>
  *     <li>GET /api/v1/usuarios - Lista todos os usuários com paginação</li>
- *     <li>GET /api/v1/usuarios/me/{id} - Retorna o perfil de um usuário específico</li>
- *     <li>PUT /api/v1/usuarios/me/{id} - Atualiza o perfil do usuário</li>
+ *     <li>GET /api/v1/usuarios/{id} - Retorna o perfil de um usuário específico</li>
+ *     <li>PATCH /api/v1/usuarios/{id} - Atualiza o perfil do usuário</li>
  *     <li>DELETE /api/v1/usuarios/{id} - Deleta um usuário</li>
  * </ul>
  */
@@ -53,8 +53,8 @@ public class UsuarioController {
      * @param id UUID do usuário
      * @return {@link UserResponseDTO} contendo os dados do perfil
      */
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
-    @GetMapping("/me/{id}")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<UserResponseDTO> getCurrentUserProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.findById(id));
     }
@@ -67,7 +67,7 @@ public class UsuarioController {
      * @return {@link UserResponseDTO} com os dados atualizados do usuário
      */
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
-    @PutMapping("/me/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateCurrentUserProfile(
             @PathVariable UUID id,
             @Valid @RequestBody UserProfileUpdateDTO updateDTO

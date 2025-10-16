@@ -57,6 +57,7 @@ const Register: React.FC = () => {
       dataNascimento: birthDate.toISOString().split('T')[0],
       nivelAtividade: activityLevelMap[activityLevel],
       objetivoUsuario: objectiveMap[objective],
+      peso: parseFloat(weight),
     };
 
     try {

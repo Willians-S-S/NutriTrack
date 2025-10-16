@@ -56,5 +56,10 @@ public record UserRequestDTO(
 
     @Schema(description = "Objetivo do usuário")
     @NotNull(message = "O objetivo do usuário não pode ser nulo.")
-    ObjetivoUsuario objetivoUsuario
+    ObjetivoUsuario objetivoUsuario,
+
+    @Schema(description = "Peso em kg")
+    @NotNull(message = "O peso não pode ser nulo.")
+    @DecimalMin(value = "20.0", message = "O peso deve ser maior que 20kg.")
+    BigDecimal peso
 ) {}

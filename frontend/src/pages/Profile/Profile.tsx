@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import "./Profile.scss";
 import Button from "../../components/Button/Button";
+import { jwtDecode } from "jwt-decode";
 
-type Goal = "lose" | "maintain" | "gain";
-type Activity = "sedentary" | "light" | "moderate" | "intense";
+type Goal = "perder_peso" | "manter_peso" | "ganhar_peso" | "performance" | "saude";
+type Activity = "sedentario" | "leve" | "moderado" | "alto" | "atleta";
 
 type ProfileData = {
   name: string;
@@ -13,36 +14,71 @@ type ProfileData = {
   activity: Activity;
 };
 
+interface JwtPayload {
+  userId: string;
+}
+
 export default function Profile() {
-  // Mock inicial (trocar por API depois)
-  const [data, setData] = useState<ProfileData>({
-    name: "Maria",
-    weight: 75,
-    height: 180,
-    goal: "lose",
-    activity: "sedentary",
-  });
+  const [data, setData] = useState<ProfileData | null>(null);
+
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const decodedToken = jwtDecode<JwtPayload>(token);
+      const userId = decodedToken.userId;
+
+      const response = await fetch(`/api/v1/usuarios/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setData({
+          name: userData.nome,
+          weight: userData.peso, // Assuming the backend sends these fields
+          height: userData.alturaM * 100, // Convert meters to cm
+          goal: userData.objetivoUsuario.toLowerCase(),
+          activity: userData.nivelAtividade.toLowerCase(),
+        });
+      } else {
+        console.error("Erro ao buscar perfil");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar perfil:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Form (modo edição)
-  const [name, setName] = useState(data.name);
-  const [weight, setWeight] = useState(data.weight?.toString() ?? "");
-  const [height, setHeight] = useState(data.height?.toString() ?? "");
-  const [goal, setGoal] = useState<Goal>(data.goal);
-  const [activity, setActivity] = useState<Activity>(data.activity);
+  const [name, setName] = useState("");
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
+  const [goal, setGoal] = useState<Goal>("saude");
+  const [activity, setActivity] = useState<Activity>("sedentario");
   const [errors, setErrors] = useState<{ name?: string; weight?: string; height?: string }>({});
 
   // IMC (modo visualização)
   const bmiView = useMemo(() => {
-    if (!data.weight || !data.height) return null;
+    if (!data || !data.weight || !data.height) return null;
     const h = data.height / 100;
     const v = data.weight / (h * h);
     return isFinite(v) ? v.toFixed(1) : null;
   }, [data]);
 
-  function startEdit() {
+  const startEdit = useCallback(() => {
+    if (!data) return;
     setName(data.name);
     setWeight(data.weight?.toString() ?? "");
     setHeight(data.height?.toString() ?? "");
@@ -50,14 +86,14 @@ export default function Profile() {
     setActivity(data.activity);
     setErrors({});
     setIsEditing(true);
-  }
+  }, [data]);
 
-  function cancelEdit() {
+  const cancelEdit = useCallback(() => {
     setErrors({});
     setIsEditing(false);
-  }
+  }, []);
 
-  function validateForm() {
+  const validateForm = useCallback(() => {
     const e: { name?: string; weight?: string; height?: string } = {};
     const w = Number(weight.toString().replace(",", "."));
     const h = Number(height.toString().replace(",", "."));
@@ -68,37 +104,70 @@ export default function Profile() {
     else if (isNaN(h) || h <= 0) e.height = "Valor inválido";
     setErrors(e);
     return Object.keys(e).length === 0;
-  }
+  }, [height, name, weight]);
 
-  async function submitUpdate(e?: React.FormEvent) {
+  const submitUpdate = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!validateForm()) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const decodedToken = jwtDecode<JwtPayload>(token);
+    const userId = decodedToken.userId;
+
     setLoading(true);
     try {
-      const payload: ProfileData = {
-        name: name.trim(),
-        weight: Number(weight.toString().replace(",", ".")),
-        height: Number(height.toString().replace(",", ".")),
-        goal,
-        activity,
+      const payload = {
+        nome: name,
+        alturaM: Number(height.toString().replace(",", ".")) / 100, // Convert cm to meters
+        peso: Number(weight.toString().replace(",", ".")),
+        nivelAtividade: activity.toUpperCase(),
+        objetivoUsuario: goal.toUpperCase(),
       };
-      console.log("[PROFILE] update payload:", payload);
-      await new Promise((r) => setTimeout(r, 600)); // mock
-      setData(payload);
-      setIsEditing(false);
+      
+      const response = await fetch(`/api/v1/usuarios/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const updatedUserData = await response.json();
+        setData({
+          name: updatedUserData.nome,
+          weight: updatedUserData.peso, // Assuming the backend sends these fields
+          height: updatedUserData.alturaM * 100, // Convert meters to cm
+          goal: updatedUserData.objetivoUsuario.toLowerCase(),
+          activity: updatedUserData.nivelAtividade.toLowerCase(),
+        });
+        setIsEditing(false);
+      } else {
+        console.error("Erro ao atualizar perfil");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
     } finally {
       setLoading(false);
     }
+  }, [activity, goal, height, name, validateForm, weight]);
+
+  if (!data) {
+    return <div className="loading-profile">Carregando perfil...</div>;
   }
 
   const goalLabel = (g: Goal) =>
-    g === "lose" ? "Perder peso" : g === "maintain" ? "Manter peso" : "Ganhar peso";
+    g === "perder_peso" ? "Perder peso" : g === "manter_peso" ? "Manter peso" : g === "ganhar_peso" ? "Ganhar peso" : g === "performance" ? "Performance" : "Saúde";
   const activityLabel = (a: Activity) => {
     switch (a) {
-      case "sedentary": return "Sedentário (pouco ou nenhum exercício)";
-      case "light":     return "Leve (1–3 dias/semana)";
-      case "moderate":  return "Moderado (3–5 dias/semana)";
-      case "intense":   return "Intenso (6–7 dias/semana)";
+      case "sedentario": return "Sedentário (pouco ou nenhum exercício)";
+      case "leve":     return "Leve (1–3 dias/semana)";
+      case "moderado":  return "Moderado (3–5 dias/semana)";
+      case "alto":   return "Intenso (6–7 dias/semana)";
+      case "atleta": return "Atleta (treino intenso diário)";
     }
   };
 
@@ -210,9 +279,11 @@ export default function Profile() {
                     onChange={(e) => setGoal(e.target.value as Goal)}
                     disabled={loading}
                   >
-                    <option value="lose">Perder peso</option>
-                    <option value="maintain">Manter peso</option>
-                    <option value="gain">Ganhar peso</option>
+                    <option value="perder_peso">Perder peso</option>
+                    <option value="manter_peso">Manter peso</option>
+                    <option value="ganhar_peso">Ganhar peso</option>
+                    <option value="performance">Performance</option>
+                    <option value="saude">Saúde</option>
                   </select>
                 </div>
 
@@ -224,10 +295,11 @@ export default function Profile() {
                     onChange={(e) => setActivity(e.target.value as Activity)}
                     disabled={loading}
                   >
-                    <option value="sedentary">Sedentário (pouco ou nenhum exercício)</option>
-                    <option value="light">Leve (1–3 dias/semana)</option>
-                    <option value="moderate">Moderado (3–5 dias/semana)</option>
-                    <option value="intense">Intenso (6–7 dias/semana)</option>
+                    <option value="sedentario">Sedentário (pouco ou nenhum exercício)</option>
+                    <option value="leve">Leve (1–3 dias/semana)</option>
+                    <option value="moderado">Moderado (3–5 dias/semana)</option>
+                    <option value="alto">Intenso (6–7 dias/semana)</option>
+                    <option value="atleta">Atleta (treino intenso diário)</option>
                   </select>
                 </div>
               </div>

@@ -1,12 +1,15 @@
-package com.nutritrack.controller;
+package com.nutritrack.NutriTrack.controller;
 
-import com.nutritrack.dto.UserRequestDTO;
-import com.nutritrack.dto.UserResponseDTO;
-import com.nutritrack.service.AuthService;
+import com.nutritrack.NutriTrack.dto.AuthRequest;
+import com.nutritrack.NutriTrack.dto.JwtResponse;
+import com.nutritrack.NutriTrack.dto.UserRequestDTO;
+import com.nutritrack.NutriTrack.dto.UserResponseDTO;
+import com.nutritrack.NutriTrack.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller para operações de autenticação, como registro de usuário.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -22,10 +28,34 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Endpoint para registrar um novo usuário.
+     *
+     * @param request Objeto contendo os dados do usuário a ser registrado.
+     * @return ResponseEntity contendo os dados do usuário registrado e o status HTTP CREATED.
+     */
     @PostMapping("/register")
     @Operation(summary = "Registra um novo usuário")
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request) {
         UserResponseDTO registeredUser = authService.register(request);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    }
+
+    /**
+     * Endpoint para autenticar um usuário.
+     * <p>
+     * Recebe um objeto {@code AuthRequest} com email e senha, valida as credenciais
+     * e, se bem-sucedido, delega ao {@code AuthService} para realizar o login
+     * e gerar um token JWT.
+     *
+     * @param request O corpo da requisição contendo as credenciais de autenticação (email e senha).
+     * @return Uma {@link ResponseEntity} com status HTTP 200 (OK) contendo o {@link JwtResponse}
+     * com o token JWT gerado.
+     * @throws  (ou similar) se as credenciais forem inválidas.
+     */
+    @PostMapping("/login")
+    @Operation(summary = "Autentica um usuário e retorna um token JWT")
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

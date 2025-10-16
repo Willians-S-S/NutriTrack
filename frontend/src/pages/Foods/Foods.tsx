@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./Foods.scss";
 import Button from "../../components/Button/Button";
 
@@ -22,58 +22,89 @@ type CatalogFood = {
 };
 
 type AddedItem = {
+  mealId: string;
   foodId: string;
   name: string;
   measure: MeasureInfo;
   qty: number;
 };
 
-/** --- Mock catalog com valores de referência aproximados --- */
-const CATALOG: CatalogFood[] = [
-  {
-    id: "eggs",
-    name: "Ovos Mexidos",
-    measures: [
-      { key: "unit", label: "unidade", kcal: 78, carbs: 0.6, fat: 5.3, protein: 6.3 },
-      { key: "g100", label: "100 g",   kcal: 148, carbs: 1.1, fat: 10.0, protein: 12.5 },
-    ],
-  },
-  {
-    id: "toast",
-    name: "Torrada Integral",
-    measures: [
-      { key: "slice", label: "fatia", kcal: 69, carbs: 11.6, fat: 1.1, protein: 2.9 },
-      { key: "g100",  label: "100 g", kcal: 340, carbs: 67,  fat: 4.2, protein: 12 },
-    ],
-  },
-  {
-    id: "avocado",
-    name: "Abacate",
-    measures: [
-      { key: "unit", label: "1/2 unidade", kcal: 160, carbs: 8.5, fat: 14.7, protein: 2 },
-      { key: "g100", label: "100 g",       kcal: 160, carbs: 9,   fat: 15,   protein: 2 },
-    ],
-  },
-  // Outros alimentos...
-];
-
-const MEAL_TITLES: Record<MealKey, string> = {
-  breakfast: "Café da Manhã",
-  lunch: "Almoço",
-  dinner: "Jantar",
-  snacks: "Lanches",
-};
-
 export default function Foods() {
-  const [query, setQuery] = useState("");
+  const [catalog, setCatalog] = useState<CatalogFood[]>([]);
+
+  useEffect(() => {
+    async function fetchCatalog() {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/v1/alimentos?nome=${query}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCatalog(data.content); 
+        } else {
+          setError('Erro ao buscar o catálogo de alimentos');
+        }
+      } catch (error) {
+        setError('Erro ao buscar o catálogo de alimentos');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (query) {
+      fetchCatalog();
+    }
+  }, [query]);
+useEffect(() => {
+    async function fetchMeals() {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+
+      setLoading(true);
+      const today = new Date();
+      const start = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+      const end = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+      try {
+        const response = await fetch(`/api/v1/refeicoes/${userId}?start=${start}&end=${end}`);
+        if (response.ok) {
+          const data = await response.json();
+          // Group meals by type
+          const mealsByType = data.reduce((acc, meal) => {
+            const mealType = meal.tipoRefeicao.toLowerCase();
+            if (!acc[mealType]) {
+              acc[mealType] = [];
+            }
+            const measure = meal.alimento.measures.find(m => m.key === meal.medida);
+            if (measure) {
+              acc[mealType].push({
+                mealId: meal.id,
+                foodId: meal.alimento.id,
+                name: meal.alimento.nome,
+                measure,
+                qty: meal.quantidade,
+              });
+            }
+            return acc;
+          }, {});
+          setMeals(mealsByType);
+        } else {
+          setError('Erro ao buscar as refeições');
+        }
+      } catch (error) {
+        setError('Erro ao buscar as refeições');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMeals();
+  }, []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const [meals, setMeals] = useState<Record<MealKey, AddedItem[]>>({
-    breakfast: [
-      { foodId: "eggs", name: "Ovos Mexidos", measure: CATALOG[0].measures[0], qty: 2 },
-      { foodId: "toast", name: "Torrada Integral", measure: CATALOG[1].measures[0], qty: 2 },
-      { foodId: "avocado", name: "Abacate", measure: CATALOG[2].measures[0], qty: 1 },
-    ],
+    breakfast: [],
     lunch: [],
     dinner: [],
     snacks: [],
@@ -103,8 +134,8 @@ export default function Foods() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return CATALOG.filter((f) => f.name.toLowerCase().includes(q));
-  }, [query]);
+    return catalog.filter((f) => f.name.toLowerCase().includes(q));
+  }, [query, catalog]);
 
   const totalKcal = useMemo(() => (measure ? measure.kcal * amount : 0), [measure, amount]);
   const totalCarbs = useMemo(() => (measure ? +(measure.carbs * amount).toFixed(1) : 0), [measure, amount]);
@@ -130,24 +161,67 @@ export default function Foods() {
     setSelectedMeals(new Set());
   }
 
-  function addSelection() {
+  async function addSelection() {
     if (!activeFood || !measure || selectedMeals.size === 0) return;
-    setMeals((prev) => {
-      const next = { ...prev };
-      selectedMeals.forEach((meal) => {
-        next[meal] = [
-          ...next[meal],
-          { foodId: activeFood.id, name: activeFood.name, measure, qty: amount },
-        ];
-        if (mealSaved[meal]) {
-          setMealSaved((s) => ({ ...s, [meal]: false }));
-        }
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setError("Usuário não autenticado.");
+      return;
+    }
+
+    const items = Array.from(selectedMeals).map((meal) => ({
+      alimentoId: activeFood.id,
+      quantidade: amount,
+      medida: measure.key,
+      tipoRefeicao: meal.toUpperCase(),
+    }));
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/v1/refeicoes/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items }),
       });
-      return next;
-    });
-    setMealSaved((s) => ({ ...s, [presetMeal || "breakfast"]: true }));
-    closeModal();
-    setQuery("");
+
+      if (response.ok) {
+        const newMeal = await response.json();
+        // Update local state after successful save
+        setMeals((prev) => {
+          const next = { ...prev };
+          selectedMeals.forEach((meal) => {
+            next[meal] = [
+              ...next[meal],
+              {
+                mealId: newMeal.id, // Get mealId from response
+                foodId: activeFood.id,
+                name: activeFood.name,
+                measure,
+                qty: amount
+              },
+            ];
+            if (mealSaved[meal]) {
+              setMealSaved((s) => ({ ...s, [meal]: false }));
+            }
+          });
+          return next;
+        });
+        setMealSaved((s) => ({ ...s, [presetMeal || "breakfast"]: true }));
+        closeModal();
+        setQuery("");
+      } else {
+        setError('Erro ao salvar a refeição');
+      }
+    } catch (error) {
+      setError('Erro ao salvar a refeição');
+    } finally {
+      setLoading(false);
+    }
   }
 
   function goToSearchFor(meal: MealKey) {
@@ -167,9 +241,44 @@ export default function Foods() {
     setMeals((prev) => ({ ...prev, [meal]: [...(snapshots[meal] || [])] }));
     setMealSaved((s) => ({ ...s, [meal]: true }));
   }
-  function saveMeal(meal: MealKey) {
-    setSnapshots((s) => ({ ...s, [meal]: [...meals[meal]] }));
-    setMealSaved((s) => ({ ...s, [meal]: true }));
+  async function saveMeal(meal: MealKey) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setError("Usuário não autenticado.");
+      return;
+    }
+    const mealId = meals[meal][0].mealId; // Assuming all items in a meal have the same mealId
+
+    const items = meals[meal].map(item => ({
+      alimentoId: item.foodId,
+      quantidade: item.qty,
+      medida: item.measure.key,
+      tipoRefeicao: meal.toUpperCase(),
+    }));
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/v1/refeicoes/${userId}/${mealId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      if (response.ok) {
+        setSnapshots((s) => ({ ...s, [meal]: [...meals[meal]] }));
+        setMealSaved((s) => ({ ...s, [meal]: true }));
+      } else {
+        setError('Erro ao salvar a refeição');
+      }
+    } catch (error) {
+      setError('Erro ao salvar a refeição');
+    } finally {
+      setLoading(false);
+    }
   }
 
   function incItem(meal: MealKey, idx: number) {
@@ -186,16 +295,45 @@ export default function Foods() {
       return { ...prev, [meal]: arr };
     });
   }
-  function removeItem(meal: MealKey, idx: number) {
-    setMeals((prev) => {
-      const arr = [...prev[meal]];
-      arr.splice(idx, 1);
-      return { ...prev, [meal]: arr };
-    });
+  async function removeItem(meal: MealKey, idx: number) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setError("Usuário não autenticado.");
+      return;
+    }
+    const itemToRemove = meals[meal][idx];
+    const mealId = itemToRemove.mealId;
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/v1/refeicoes/${userId}/${mealId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setMeals((prev) => {
+          const arr = [...prev[meal]];
+          arr.splice(idx, 1);
+          return { ...prev, [meal]: arr };
+        });
+      } else {
+        setError('Erro ao remover o item da refeição');
+      }
+    } catch (error) {
+      setError('Erro ao remover o item da refeição');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <main className="foods-page">
+      {loading && <div className="loading">Carregando...</div>}
+      {error && <div className="error">{error}</div>}
       <h2>Adicionar Alimentos</h2>
 
       <div className="search">

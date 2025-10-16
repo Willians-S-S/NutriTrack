@@ -1,4 +1,4 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
@@ -8,6 +8,28 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO para criar ou atualizar um alimento.
+ * Contém informações nutricionais básicas por porção base.
+ *
+ * Campos:
+ * <ul>
+ *   <li>nome: Nome do alimento (máx. 160 caracteres, obrigatório)</li>
+ *   <li>calorias: Calorias por porção (obrigatório, > 0)</li>
+ *   <li>proteinasG: Proteínas em gramas (obrigatório, >= 0)</li>
+ *   <li>carboidratosG: Carboidratos em gramas (obrigatório, >= 0)</li>
+ *   <li>gordurasG: Gorduras em gramas (obrigatório, >= 0)</li>
+ * </ul>
+ *
+ * Exemplo de uso no Swagger UI:
+ * {
+ *   "nome": "Maçã Gala",
+ *   "calorias": 52.1,
+ *   "proteinasG": 0.3,
+ *   "carboidratosG": 13.8,
+ *   "gordurasG": 0.2
+ * }
+ */
 public record AlimentoRequestDTO(
     @Schema(description = "Nome do alimento", example = "Maçã Gala")
     @NotBlank(message = "O nome não pode ser vazio.")

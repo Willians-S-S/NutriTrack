@@ -1,4 +1,4 @@
-package com.nutritrack.entity;
+package com.nutritrack.NutriTrack.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,11 +6,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/**
+ * Entidade que representa um alimento no sistema.
+ * Contém informações nutricionais e metadados de criação.
+ *
+ * Campos:
+ * <ul>
+ *   <li>id: UUID único do alimento (chave primária)</li>
+ *   <li>nome: Nome do alimento, obrigatório e único, máximo de 160 caracteres</li>
+ *   <li>calorias: Quantidade de calorias por porção base, obrigatória</li>
+ *   <li>proteinasG: Proteínas em gramas por porção base, obrigatória</li>
+ *   <li>carboidratosG: Carboidratos em gramas por porção base, obrigatória</li>
+ *   <li>gordurasG: Gorduras em gramas por porção base, obrigatória</li>
+ *   <li>criadoEm: Data e hora de criação do registro, preenchida automaticamente</li>
+ * </ul>
+ */
 @Data
 @Builder
 @NoArgsConstructor

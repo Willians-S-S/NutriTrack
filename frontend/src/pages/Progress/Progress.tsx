@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./Progress.scss";
 
 type TabKey = "daily" | "weekly" | "monthly";
@@ -155,6 +155,40 @@ const TABS: { key: TabKey; label: string }[] = [
 export default function Progress() {
   const [tab, setTab] = useState<TabKey>("daily");
   const data = DATA[tab];
+  const [weightHistory, setWeightHistory] = useState<any[]>([]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    async function fetchWeightHistory() {
+      const token = localStorage.getItem("token");
+      const today = new Date();
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(today.getMonth() - 1);
+
+      const start = lastMonth.toISOString().split('T')[0];
+      const end = today.toISOString().split('T')[0];
+
+      try {
+        const response = await fetch(`/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setWeightHistory(data.sort((a: any, b: any) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
+        } else {
+          console.error("Erro ao buscar histórico de peso");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar histórico de peso:", error);
+      }
+    }
+
+    fetchWeightHistory();
+  }, []);
 
   const goalsPerc = useMemo(() => {
     const pct = (curr: number, target: number) =>
@@ -165,6 +199,49 @@ export default function Progress() {
       carbs: pct(data.goals.carbs.current, data.goals.carbs.target),
     };
   }, [data]);
+
+  async function handleAddWeight(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    const form = e.currentTarget;
+    const dateInput = form.elements.namedItem("weightDate") as HTMLInputElement;
+    const weightInput = form.elements.namedItem("weightInput") as HTMLInputElement;
+
+    if (!dateInput.value || !weightInput.value) {
+      alert("Por favor, preencha a data e o peso.");
+      return;
+    }
+
+    const payload = {
+      dataMedicao: dateInput.value,
+      pesoKg: parseFloat(weightInput.value),
+    };
+
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/v1/registros-peso/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const newRecord = await response.json();
+        setWeightHistory(prev => [...prev, newRecord].sort((a, b) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
+        form.reset();
+      } else {
+        console.error("Erro ao adicionar registro de peso");
+        alert("Erro ao adicionar registro de peso. Verifique se já existe um registro para esta data.");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar registro de peso:", error);
+    }
+  }
 
   return (
     <main className="progress-page">
@@ -215,6 +292,32 @@ export default function Progress() {
           suffix={data.goals.carbs.suffix}
           percent={goalsPerc.carbs}
         />
+      </section>
+
+      <h3 className="section-title">Acompanhamento de Peso</h3>
+      <section className="weight-tracking">
+        <div className="card">
+          <h4>Histórico de Peso</h4>
+          <ul>
+            {weightHistory.map((record: any) => (
+              <li key={record.id}>{record.dataMedicao}: {record.pesoKg}kg</li>
+            ))}
+          </ul>
+        </div>
+        <div className="card">
+          <h4>Adicionar Novo Registro</h4>
+          <form onSubmit={handleAddWeight} className="weight-form">
+            <div className="form-group">
+              <label htmlFor="weightDate">Data</label>
+              <input type="date" id="weightDate" name="weightDate" defaultValue={new Date().toISOString().split('T')[0]} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="weightInput">Peso (kg)</label>
+              <input type="number" id="weightInput" name="weightInput" step="0.1" required />
+            </div>
+            <button type="submit">Adicionar</button>
+          </form>
+        </div>
       </section>
     </main>
   );

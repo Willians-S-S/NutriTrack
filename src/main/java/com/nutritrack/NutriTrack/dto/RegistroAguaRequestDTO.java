@@ -1,4 +1,4 @@
-package com.nutritrack.dto;
+package com.nutritrack.NutriTrack.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
@@ -7,6 +7,22 @@ import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDate;
 
+/**
+ * DTO para requisição de registro de consumo de água.
+ * Contém a quantidade de água consumida e a data da medição.
+ *
+ * Campos:
+ * <ul>
+ *   <li>quantidadeMl: Quantidade de água consumida em mililitros, obrigatória e mínima de 1 ml</li>
+ *   <li>dataMedicao: Data da medição do consumo de água, obrigatória e não pode ser no futuro</li>
+ * </ul>
+ *
+ * Exemplo de uso no Swagger UI:
+ * {
+ *   "quantidadeMl": 250,
+ *   "dataMedicao": "2025-09-23"
+ * }
+ */
 public record RegistroAguaRequestDTO(
     @Schema(description = "Quantidade de água em mililitros", example = "250")
     @NotNull(message = "A quantidade não pode ser nula.")

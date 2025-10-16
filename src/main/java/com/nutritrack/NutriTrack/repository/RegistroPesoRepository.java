@@ -1,20 +1,18 @@
-package com.nutritrack.repository;
+package com.nutritrack.NutriTrack.repository;
 
-import com.nutritrack.entity.RegistroPeso;
+import com.nutritrack.NutriTrack.entity.RegistroPeso;
+import com.nutritrack.NutriTrack.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public interface RegistroPesoRepository extends JpaRepository<RegistroPeso, UUID> {
+    Optional<RegistroPeso> findFirstByUsuarioOrderByDataMedicaoDesc(Usuario usuario);
 
-    List<RegistroPeso> findByUsuarioIdAndDataMedicaoBetween(UUID usuarioId, LocalDate start, LocalDate end);
+    Optional<RegistroPeso> findByUsuario_IdAndDataMedicao(UUID usuarioId, LocalDate dataMedicao);
 
-    Optional<RegistroPeso> findByUsuarioIdAndDataMedicao(UUID usuarioId, LocalDate dataMedicao);
-
-    List<RegistroPeso> findByUsuarioId(UUID usuarioId);
+    List<RegistroPeso> findByUsuario_IdAndDataMedicaoBetween(UUID usuarioId, LocalDate start, LocalDate end);
 }

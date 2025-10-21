@@ -15,8 +15,8 @@ public class MetaMapper {
         meta.setProteinasObjetivo(dto.proteinasObjetivo());
         meta.setCarboidratosObjetivo(dto.carboidratosObjetivo());
         meta.setGordurasObjetivo(dto.gordurasObjetivo());
-        meta.setDataInicio(dto.dataInicio());
-        meta.setDataFim(dto.dataFim());
+//        meta.setDataInicio(dto.dataInicio());
+//        meta.setDataFim(dto.dataFim());
         return meta;
     }
 
@@ -29,10 +29,11 @@ public class MetaMapper {
                 meta.getProteinasObjetivo(),
                 meta.getCarboidratosObjetivo(),
                 meta.getGordurasObjetivo(),
-                meta.getDataInicio(),
-                meta.getDataFim(),
                 meta.getCriadoEm(),
                 meta.getAtualizadoEm()
+//                meta.getDataInicio(),
+//                meta.getDataFim(),
+
         );
     }
 }

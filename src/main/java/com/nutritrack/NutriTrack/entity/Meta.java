@@ -42,11 +42,11 @@ public class Meta {
     @Column(nullable = false)
     private BigDecimal gordurasObjetivo;
 
-    @Column(nullable = false)
-    private LocalDate dataInicio;
+//    @Column(nullable = false)
+//    private LocalDate dataInicio;
 
-    @Column(nullable = false)
-    private LocalDate dataFim;
+//    @Column(nullable = false)
+//    private LocalDate dataFim;
 
     @CreationTimestamp
     private OffsetDateTime criadoEm;

@@ -15,8 +15,8 @@ public record MetaResponseDTO(
         BigDecimal proteinasObjetivo,
         BigDecimal carboidratosObjetivo,
         BigDecimal gordurasObjetivo,
-        LocalDate dataInicio,
-        LocalDate dataFim,
+//        LocalDate dataInicio,
+//        LocalDate dataFim,
         OffsetDateTime criadoEm,
         OffsetDateTime atualizadoEm
 ) {}

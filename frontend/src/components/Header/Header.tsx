@@ -33,12 +33,6 @@ function Header() {
       </nav>
 
       <div className="actions">
-        <div className="notification">
-          <i><BsBell /></i>
-          <span className="badge"></span>
-        </div>
-
-        {/* só envolvi o ícone com NavLink */}
         <NavLink to="/profile" className="profile-link" aria-label="Profile">
           <i><CgProfile /></i>
         </NavLink>

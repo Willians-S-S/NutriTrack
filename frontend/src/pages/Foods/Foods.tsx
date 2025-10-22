@@ -1,45 +1,121 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import "./Foods.scss";
 import Button from "../../components/Button/Button";
+import FoodModal from "../../components/FoodModal/FoodModal";
+import { MEAL_TITLES, UNIDADE_MEDIDA_LABELS, type MealKey, type MeasureKey } from "../../utils/Constants";
+import { toast } from "react-toastify";
 
-/** --- Types --- */
-type MealKey = "breakfast" | "lunch" | "dinner" | "snacks";
-type MeasureKey = "unit" | "slice" | "cup" | "g100";
-
-type MeasureInfo = {
-  key: MeasureKey;
-  label: string;   // "unidade", "fatia", "100 g"
-  kcal: number;
-  carbs: number;   // g
-  fat: number;     // g
-  protein: number; // g
-};
-
-type CatalogFood = {
+type AlimentoResumidoDTO = {
   id: string;
-  name: string;        // PT
-  measures: MeasureInfo[];
+  nome: string;
 };
 
-type AddedItem = {
-  mealId: string;
-  foodId: string;
-  name: string;
-  measure: MeasureInfo;
-  qty: number;
+type AlimentoResponseDTO = AlimentoResumidoDTO & {
+  calorias: number;
+  proteinasG: number;
+  carboidratosG: number;
+  gordurasG: number;
 };
+
+type ItemRefeicaoResponseDTO = {
+  id: string;
+  alimento: AlimentoResumidoDTO;
+  quantidade: number;
+  unidade: MeasureKey;
+  observacoes: string | null;
+};
+
+type RefeicaoResponseDTO = {
+  id: string;
+  usuarioId: string;
+  tipo: MealKey;
+  dataHora: string;
+  observacoes: string | null;
+  itens: ItemRefeicaoResponseDTO[];
+  totalCalorias: number;
+  totalProteinasG: number;
+  totalCarboidratosG: number;
+  totalGordurasG: number;
+};
+
+type ItemRefeicaoRequestDTO = {
+    alimentoId: string;
+    quantidade: number;
+    unidade: MeasureKey;
+    observacoes: string | null;
+};
+type RefeicaoRequestDTO = {
+    tipo: MealKey;
+    dataHora: string;
+    observacoes: string | null;
+    itens: ItemRefeicaoRequestDTO[];
+};
+
+type CatalogFood = AlimentoResponseDTO & {
+  measures: { key: MeasureKey; label: string }[];
+};
+
+type MealsState = Record<MealKey, RefeicaoResponseDTO | undefined>;
+
+const MOCK_MEASURES: { key: MeasureKey; label: string }[] = [
+    { key: "GRAMA", label: "gramas" },
+    { key: "MILILITRO", label: "ml" },
+    { key: "UNIDADE", label: "unidade" },
+];
+
+const MACRO_BASE_DIVISOR = 100;
 
 export default function Foods() {
+  const [query, setQuery] = useState("");
   const [catalog, setCatalog] = useState<CatalogFood[]>([]);
+  const [meals, setMeals] = useState<MealsState>({} as MealsState);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const [presetMeal, setPresetMeal] = useState<MealKey | null>(null);
+  const [open, setOpen] = useState(false);
+  const [activeFood, setActiveFood] = useState<CatalogFood | null>(null);
+  const [unit, setUnit] = useState<MeasureKey>("GRAMA");
+  const [amount, setAmount] = useState<number>(100);
+  const [selectedMealType, setSelectedMealType] = useState<MealKey | null>(presetMeal);
+
+  const getTodayRange = useCallback(() => {
+    const today = new Date();
+
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const dateOnly = `${year}-${month}-${day}`;
+
+    const start = dateOnly;
+    const end = dateOnly;
+    const dataHora = today.toISOString();
+
+    return { start, end, dataHora };
+  }, []);
 
   useEffect(() => {
     async function fetchCatalog() {
+      if (query.trim().length < 3) {
+        setCatalog([]);
+        return;
+      }
       setLoading(true);
+      setError(null);
       try {
-        const response = await fetch(`/api/v1/alimentos?nome=${query}`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/v1/alimentos?nome=${encodeURIComponent(query)}&size=10`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (response.ok) {
           const data = await response.json();
-          setCatalog(data.content); 
+          const formattedCatalog = data.content.map((food: AlimentoResponseDTO) => ({
+              ...food,
+              measures: MOCK_MEASURES,
+          }));
+          setCatalog(formattedCatalog);
         } else {
           setError('Erro ao buscar o catálogo de alimentos');
         }
@@ -50,284 +126,269 @@ export default function Foods() {
       }
     }
 
-    if (query) {
-      fetchCatalog();
-    }
+    const delayDebounceFn = setTimeout(() => {
+        fetchCatalog();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
   }, [query]);
-useEffect(() => {
-    async function fetchMeals() {
-      const userId = localStorage.getItem('userId');
-      if (!userId) return;
 
-      setLoading(true);
-      const today = new Date();
-      const start = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-      const end = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+  const fetchMeals = useCallback(async () => {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    if (!userId || !token) return;
 
-      try {
-        const response = await fetch(`/api/v1/refeicoes/${userId}?start=${start}&end=${end}`);
-        if (response.ok) {
-          const data = await response.json();
-          // Group meals by type
-          const mealsByType = data.reduce((acc, meal) => {
-            const mealType = meal.tipoRefeicao.toLowerCase();
-            if (!acc[mealType]) {
-              acc[mealType] = [];
-            }
-            const measure = meal.alimento.measures.find(m => m.key === meal.medida);
-            if (measure) {
-              acc[mealType].push({
-                mealId: meal.id,
-                foodId: meal.alimento.id,
-                name: meal.alimento.nome,
-                measure,
-                qty: meal.quantidade,
-              });
-            }
-            return acc;
-          }, {});
-          setMeals(mealsByType);
-        } else {
-          setError('Erro ao buscar as refeições');
-        }
-      } catch (error) {
+    setLoading(true);
+    const { start, end } = getTodayRange();
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/v1/refeicoes/usuario/${userId}?start=${start}&end=${end}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data: RefeicaoResponseDTO[] = await response.json();
+        const mealsByType = data.reduce((acc, meal) => {
+          acc[meal.tipo] = meal;
+          return acc;
+        }, {} as MealsState);
+
+        setMeals(mealsByType);
+      } else {
         setError('Erro ao buscar as refeições');
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      setError('Erro ao buscar as refeições');
+    } finally {
+      setLoading(false);
     }
+  }, [getTodayRange]);
 
+  useEffect(() => {
     fetchMeals();
-  }, []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
+  }, [fetchMeals]);
 
-  const [meals, setMeals] = useState<Record<MealKey, AddedItem[]>>({
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snacks: [],
-  });
+  const activeFoodData = activeFood as AlimentoResponseDTO;
 
-  const [mealSaved, setMealSaved] = useState<Record<MealKey, boolean>>({
-    breakfast: true,
-    lunch: false,
-    dinner: false,
-    snacks: false,
-  });
+  const totalKcal = useMemo(() => activeFoodData ? Math.round((activeFoodData.calorias / MACRO_BASE_DIVISOR) * amount) : 0, [activeFoodData, amount]);
+  const totalCarbs = useMemo(() => activeFoodData ? +((activeFoodData.carboidratosG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
+  const totalFat = useMemo(() => activeFoodData ? +((activeFoodData.gordurasG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
+  const totalProtein = useMemo(() => activeFoodData ? +((activeFoodData.proteinasG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
 
-  const [snapshots, setSnapshots] = useState<Record<MealKey, AddedItem[]>>({
-    breakfast: [...(meals.breakfast || [])],
-    lunch: [],
-    dinner: [],
-    snacks: [],
-  });
-
-  const [presetMeal, setPresetMeal] = useState<MealKey | null>(null);
-  const [open, setOpen] = useState(false);
-  const [activeFood, setActiveFood] = useState<CatalogFood | null>(null);
-  const [measure, setMeasure] = useState<MeasureInfo | null>(null);
-  const [amount, setAmount] = useState<number>(1);
-  const [selectedMeals, setSelectedMeals] = useState<Set<MealKey>>(new Set());
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return catalog.filter((f) => f.name.toLowerCase().includes(q));
-  }, [query, catalog]);
-
-  const totalKcal = useMemo(() => (measure ? measure.kcal * amount : 0), [measure, amount]);
-  const totalCarbs = useMemo(() => (measure ? +(measure.carbs * amount).toFixed(1) : 0), [measure, amount]);
-  const totalFat = useMemo(() => (measure ? +(measure.fat * amount).toFixed(1) : 0), [measure, amount]);
-  const totalProtein = useMemo(() => (measure ? +(measure.protein * amount).toFixed(1) : 0), [measure, amount]);
-
-  function openModal(food: CatalogFood, preset?: MealKey | null) {
+  function openModal(food: CatalogFood, preset: MealKey | null) {
     setActiveFood(food);
-    setMeasure(food.measures[0]);
-    setAmount(1);
-    const start = new Set<MealKey>();
-    if (preset) start.add(preset);
-    else if (presetMeal) start.add(presetMeal);
-    setSelectedMeals(start);
+    setUnit("GRAMA");
+    setAmount(100);
+    setSelectedMealType(preset ?? presetMeal ?? "CAFE_MANHA");
     setOpen(true);
   }
 
   function closeModal() {
     setOpen(false);
     setActiveFood(null);
-    setMeasure(null);
-    setAmount(1);
-    setSelectedMeals(new Set());
+    setUnit("GRAMA");
+    setAmount(100);
+    setQuery("");
   }
 
   async function addSelection() {
-    if (!activeFood || !measure || selectedMeals.size === 0) return;
+    if (!activeFood || !selectedMealType) return;
 
     const userId = localStorage.getItem('userId');
-    if (!userId) {
+    const token = localStorage.getItem('token');
+    if (!userId || !token) {
       setError("Usuário não autenticado.");
       return;
     }
 
-    const items = Array.from(selectedMeals).map((meal) => ({
-      alimentoId: activeFood.id,
-      quantidade: amount,
-      medida: measure.key,
-      tipoRefeicao: meal.toUpperCase(),
+    setLoading(true);
+    setError(null);
+
+    const newItem: Omit<ItemRefeicaoResponseDTO, 'id' | 'alimento' | 'observacoes'> & { alimento: AlimentoResumidoDTO } = {
+        alimento: { id: activeFood.id, nome: activeFood.nome },
+        quantidade: amount,
+        unidade: unit,
+    };
+
+    const existingMeal = meals[selectedMealType];
+    const { dataHora } = getTodayRange();
+
+    const isUpdate = existingMeal !== undefined;
+    const itemsPayload: ItemRefeicaoRequestDTO[] = (existingMeal?.itens || []).map(item => ({
+        alimentoId: item.alimento.id,
+        quantidade: item.quantidade,
+        unidade: item.unidade,
+        observacoes: item.observacoes,
     }));
 
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/v1/refeicoes/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ items }),
-      });
+    itemsPayload.push({
+        alimentoId: activeFood.id,
+        quantidade: amount,
+        unidade: unit,
+        observacoes: ""
+    });
 
-      if (response.ok) {
-        const newMeal = await response.json();
-        // Update local state after successful save
-        setMeals((prev) => {
-          const next = { ...prev };
-          selectedMeals.forEach((meal) => {
-            next[meal] = [
-              ...next[meal],
-              {
-                mealId: newMeal.id, // Get mealId from response
-                foodId: activeFood.id,
-                name: activeFood.name,
-                measure,
-                qty: amount
-              },
-            ];
-            if (mealSaved[meal]) {
-              setMealSaved((s) => ({ ...s, [meal]: false }));
-            }
-          });
-          return next;
-        });
-        setMealSaved((s) => ({ ...s, [presetMeal || "breakfast"]: true }));
-        closeModal();
-        setQuery("");
-      } else {
-        setError('Erro ao salvar a refeição');
-      }
-    } catch (error) {
-      setError('Erro ao salvar a refeição');
-    } finally {
-      setLoading(false);
+    const refeicaoPayload: RefeicaoRequestDTO = {
+        tipo: selectedMealType,
+        dataHora: existingMeal?.dataHora ?? dataHora,
+        observacoes: existingMeal?.observacoes ?? "",
+        itens: itemsPayload,
     }
+
+    try {
+        const url = isUpdate
+            ? `/api/v1/refeicoes/${userId}/${existingMeal.id}`
+            : `/api/v1/refeicoes/${userId}`;
+        const method = isUpdate ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(refeicaoPayload),
+        });
+
+        if (response.ok) {
+            const updatedMeal: RefeicaoResponseDTO = await response.json();
+            setMeals((prev) => ({ ...prev, [selectedMealType]: updatedMeal }));
+            closeModal();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            setError(errorData.message || 'Erro ao salvar a refeição');
+        }
+    } catch (error) {
+        setError('Erro de rede ao salvar a refeição.');
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  async function saveMeal(mealKey: MealKey) {
+    const mealToSave = meals[mealKey];
+    if (!mealToSave) return;
+
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    if (!userId || !token) return;
+
+    setLoading(true);
+    setError(null);
+
+    const itemsPayload: ItemRefeicaoRequestDTO[] = mealToSave.itens.map(item => ({
+        alimentoId: item.alimento.id,
+        quantidade: item.quantidade,
+        unidade: item.unidade,
+        observacoes: item.observacoes,
+    }));
+
+    const refeicaoPayload: RefeicaoRequestDTO = {
+        tipo: mealToSave.tipo,
+        dataHora: mealToSave.dataHora,
+        observacoes: mealToSave.observacoes,
+        itens: itemsPayload,
+    }
+
+    try {
+        const response = await fetch(`/api/v1/refeicoes/${userId}/${mealToSave.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(refeicaoPayload),
+        });
+
+        if (response.ok) {
+            const updatedMeal: RefeicaoResponseDTO = await response.json();
+            setMeals((prev) => ({ ...prev, [mealKey]: updatedMeal }));
+            toast.success(`${MEAL_TITLES[mealKey]} salva com sucesso!`);
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            setError(errorData.message || 'Erro ao salvar a refeição');
+        }
+    } catch (error) {
+        setError('Erro de rede ao salvar a refeição.');
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  async function removeMeal(mealKey: MealKey) {
+    const mealToDelete = meals[mealKey];
+    if (!mealToDelete || !confirm(`Tem certeza que deseja remover TODA a refeição de ${MEAL_TITLES[mealKey]}?`)) return;
+
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    if (!userId || !token) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+        const response = await fetch(`/api/v1/refeicoes/${userId}/${mealToDelete.id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 204) {
+            setMeals((prev) => {
+                const next = { ...prev };
+                delete next[mealKey];
+                return next;
+            });
+            toast.success(`Refeição de ${MEAL_TITLES[mealKey]} removida.`);
+        } else {
+             const errorData = await response.json().catch(() => ({}));
+             setError(errorData.message || 'Erro ao remover a refeição');
+        }
+    } catch (error) {
+        setError('Erro de rede ao remover a refeição.');
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  function updateItemQty(mealKey: MealKey, itemIndex: number, newQty: number) {
+    const currentMeal = meals[mealKey];
+    if (!currentMeal) return;
+
+    setMeals(prev => {
+        const updatedItems = currentMeal.itens.map((item, idx) =>
+            idx === itemIndex ? { ...item, quantidade: Math.max(1, newQty) } : item
+        );
+        return {
+            ...prev,
+            [mealKey]: { ...currentMeal, itens: updatedItems }
+        };
+    });
+  }
+
+  function removeItemFromList(mealKey: MealKey, itemIndex: number) {
+    const currentMeal = meals[mealKey];
+    if (!currentMeal) return;
+
+    if (currentMeal.itens.length === 1) {
+      if (confirm(`Remover o último item de ${MEAL_TITLES[mealKey]} removerá a refeição inteira. Deseja continuar?`)) {
+        removeMeal(mealKey);
+      }
+      return;
+    }
+
+    setMeals(prev => {
+        const updatedItems = currentMeal.itens.filter((_, idx) => idx !== itemIndex);
+        return {
+            ...prev,
+            [mealKey]: { ...currentMeal, itens: updatedItems }
+        };
+    });
   }
 
   function goToSearchFor(meal: MealKey) {
     setPresetMeal(meal);
     setTimeout(() => searchRef.current?.focus(), 0);
-  }
-
-  function subtotalKcal(meal: MealKey) {
-    return meals[meal].reduce((acc, it) => acc + it.measure.kcal * it.qty, 0);
-  }
-
-  function startEditMeal(meal: MealKey) {
-    setSnapshots((s) => ({ ...s, [meal]: [...meals[meal]] }));
-    setMealSaved((s) => ({ ...s, [meal]: false }));
-  }
-  function cancelEditMeal(meal: MealKey) {
-    setMeals((prev) => ({ ...prev, [meal]: [...(snapshots[meal] || [])] }));
-    setMealSaved((s) => ({ ...s, [meal]: true }));
-  }
-  async function saveMeal(meal: MealKey) {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      setError("Usuário não autenticado.");
-      return;
-    }
-    const mealId = meals[meal][0].mealId; // Assuming all items in a meal have the same mealId
-
-    const items = meals[meal].map(item => ({
-      alimentoId: item.foodId,
-      quantidade: item.qty,
-      medida: item.measure.key,
-      tipoRefeicao: meal.toUpperCase(),
-    }));
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/v1/refeicoes/${userId}/${mealId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ items }),
-      });
-
-      if (response.ok) {
-        setSnapshots((s) => ({ ...s, [meal]: [...meals[meal]] }));
-        setMealSaved((s) => ({ ...s, [meal]: true }));
-      } else {
-        setError('Erro ao salvar a refeição');
-      }
-    } catch (error) {
-      setError('Erro ao salvar a refeição');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function incItem(meal: MealKey, idx: number) {
-    setMeals((prev) => {
-      const arr = [...prev[meal]];
-      arr[idx] = { ...arr[idx], qty: arr[idx].qty + 1 };
-      return { ...prev, [meal]: arr };
-    });
-  }
-  function decItem(meal: MealKey, idx: number) {
-    setMeals((prev) => {
-      const arr = [...prev[meal]];
-      arr[idx] = { ...arr[idx], qty: Math.max(1, arr[idx].qty - 1) };
-      return { ...prev, [meal]: arr };
-    });
-  }
-  async function removeItem(meal: MealKey, idx: number) {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      setError("Usuário não autenticado.");
-      return;
-    }
-    const itemToRemove = meals[meal][idx];
-    const mealId = itemToRemove.mealId;
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/v1/refeicoes/${userId}/${mealId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        setMeals((prev) => {
-          const arr = [...prev[meal]];
-          arr.splice(idx, 1);
-          return { ...prev, [meal]: arr };
-        });
-      } else {
-        setError('Erro ao remover o item da refeição');
-      }
-    } catch (error) {
-      setError('Erro ao remover o item da refeição');
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (
@@ -344,19 +405,19 @@ useEffect(() => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        {query && (
+        {query.trim().length >= 3 && (
           <div className="results">
-            {results.length === 0 ? (
+            {catalog.length === 0 ? (
               <div className="empty">Nenhum alimento encontrado</div>
             ) : (
-              results.map((f) => (
+              catalog.map((f) => (
                 <button
                   key={f.id}
                   className="result-row"
                   onClick={() => openModal(f, presetMeal)}
                   type="button"
                 >
-                  {f.name}
+                  {f.nome}
                 </button>
               ))
             )}
@@ -365,56 +426,60 @@ useEffect(() => {
       </div>
 
       <section className="meals">
-        {(Object.keys(MEAL_TITLES) as MealKey[]).map((meal) => {
-          const items = meals[meal];
-          const hasItems = items.length > 0;
-          const isSaved = mealSaved[meal];
+        {(Object.keys(MEAL_TITLES) as MealKey[]).map((mealKey) => {
+          const meal = meals[mealKey];
+          const hasItems = meal && meal.itens.length > 0;
 
           return (
-            <div className="meal-card" key={meal}>
+            <div className="meal-card" key={mealKey}>
               <div className="meal-title">
-                <span>{MEAL_TITLES[meal]}</span>
-                {hasItems && <span className="subkcal">{subtotalKcal(meal)} kcal</span>}
+                <span>{MEAL_TITLES[mealKey]}</span>
+                {hasItems && <span className="subkcal">{Math.round(meal.totalCalorias)} kcal</span>}
               </div>
 
               {!hasItems ? (
-                <button className="empty-cta" onClick={() => goToSearchFor(meal)} type="button">
+                <button className="empty-cta" onClick={() => goToSearchFor(mealKey)} type="button">
                   <span className="plus">+</span> Adicione seus alimentos
                 </button>
               ) : (
-                <ul className={`food-list ${isSaved ? "readonly" : "editing"}`}>
-                  {items.map((it, idx) => (
-                    <li className="food-row" key={`${it.foodId}-${idx}`}>
+                <ul className="food-list editing">
+                  {meal.itens.map((it, idx) => (
+                    <li className="food-row" key={`${it.alimento.id}-${idx}`}>
                       <div className="left">
-                        <div className="name">{it.name}</div>
+                        <div className="name">{it.alimento.nome}</div>
                         <div className="meta">
-                          {isSaved
-                            ? `${it.qty} × ${it.measure.label} • ${it.measure.kcal * it.qty} kcal`
-                            : `${it.measure.label} • ${it.measure.kcal} kcal por unidade`}
+                          {it.quantidade} {UNIDADE_MEDIDA_LABELS[it.unidade] || it.unidade}
                         </div>
                       </div>
 
-                      {isSaved ? (
-                        <div className="right read-only">
-                          <span className="qty-tag">{it.qty}</span>
-                        </div>
-                      ) : (
-                        <div className="right editing">
-                          <div className="counter">
-                            <button type="button" onClick={() => decItem(meal, idx)} aria-label="Diminuir">−</button>
-                            <span className="qty" aria-live="polite">{it.qty}</span>
-                            <button type="button" onClick={() => incItem(meal, idx)} aria-label="Aumentar">+</button>
-                          </div>
+                      <div className="right editing">
+                        <div className="counter">
                           <button
                             type="button"
-                            className="remove-btn"
-                            onClick={() => removeItem(meal, idx)}
-                            aria-label="Remover alimento"
+                            onClick={() => updateItemQty(mealKey, idx, it.quantidade - (it.unidade === 'GRAMA' ? 10 : 1))}
+                            aria-label="Diminuir"
+                            disabled={it.quantidade <= 1}
                           >
-                            ×
+                            −
+                          </button>
+                          <span className="qty" aria-live="polite">{it.quantidade}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateItemQty(mealKey, idx, it.quantidade + (it.unidade === 'GRAMA' ? 10 : 1))}
+                            aria-label="Aumentar"
+                          >
+                            +
                           </button>
                         </div>
-                      )}
+                        <button
+                          type="button"
+                          className="remove-btn"
+                          onClick={() => removeItemFromList(mealKey, idx)}
+                          aria-label="Remover alimento"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -422,20 +487,15 @@ useEffect(() => {
 
               {hasItems && (
                 <div className="meal-actions">
-                  {isSaved ? (
-                    <button className="save-btn saved" onClick={() => startEditMeal(meal)} type="button">
-                      Editar refeições
-                    </button>
-                  ) : (
-                    <>
-                      <button className="ghost-btn" onClick={() => cancelEditMeal(meal)} type="button">
-                        Cancelar
-                      </button>
-                      <button className="save-btn" onClick={() => saveMeal(meal)} type="button">
-                        Salvar refeição
-                      </button>
-                    </>
-                  )}
+                    <Button
+                       title="Remover tudo"
+                       onClick={() => removeMeal(mealKey)}
+                       red
+                     />
+                    <Button
+                      title="Atualizar Refeição"
+                      onClick={() => saveMeal(mealKey)}
+                    />
                 </div>
               )}
             </div>
@@ -443,89 +503,19 @@ useEffect(() => {
         })}
       </section>
 
-      {open && activeFood && measure && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">
-              <h3>{activeFood.name}</h3>
-              <button className="close-x" onClick={closeModal} aria-label="Fechar">×</button>
-            </div>
-
-            <div className="modal-body">
-              <div className="grid">
-                <div className="row">
-                  <label>Medida</label>
-                  <select
-                    value={measure.key}
-                    onChange={(e) => {
-                      const m = activeFood.measures.find((x) => x.key === (e.target.value as MeasureKey));
-                      if (m) setMeasure(m);
-                    }}
-                  >
-                    {activeFood.measures.map((m) => (
-                      <option key={m.key} value={m.key}>{m.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="row">
-                  <label>Quantidade</label>
-                  <div className="qty">
-                    <button type="button" onClick={() => setAmount((v) => Math.max(1, v - 1))}>−</button>
-                    <input
-                      type="number"
-                      min={1}
-                      value={amount}
-                      onChange={(e) => setAmount(Math.max(1, Number(e.target.value)))}
-                    />
-                    <button type="button" onClick={() => setAmount((v) => v + 1)}>+</button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="macros">
-                <Macro label="Calorias" value={`${totalKcal} kcal`} />
-                <Macro label="Carboidratos" value={`${totalCarbs} g`} />
-                <Macro label="Gorduras" value={`${totalFat} g`} />
-                <Macro label="Proteínas" value={`${totalProtein} g`} />
-              </div>
-
-              <div className="meal-select">
-                <span>Adicionar em:</span>
-                {(["breakfast", "lunch", "dinner", "snacks"] as MealKey[]).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className={`pill ${selectedMeals.has(m) ? "on" : ""}`}
-                    onClick={() => {
-                      const next = new Set(selectedMeals);
-                      next.has(m) ? next.delete(m) : next.add(m);
-                      setSelectedMeals(next);
-                    }}
-                  >
-                    {MEAL_TITLES[m]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button className="ghost-btn" onClick={closeModal} type="button">Cancelar</button>
-              <Button title="Adicionar" onClick={addSelection} />
-            </div>
-          </div>
-        </div>
-      )}
+      <FoodModal
+        isOpen={open}
+        onClose={closeModal}
+        activeFood={activeFood}
+        selectedMealType={selectedMealType}
+        onMealTypeChange={setSelectedMealType}
+        unit={unit}
+        onUnitChange={setUnit}
+        amount={amount}
+        onAmountChange={setAmount}
+        onAddSelection={addSelection}
+        loading={loading}
+      />
     </main>
-  );
-}
-
-/** Badge de macro no modal */
-function Macro({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="macro">
-      <span className="m-label">{label}</span>
-      <span className="m-value">{value}</span>
-    </div>
   );
 }

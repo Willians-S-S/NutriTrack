@@ -40,7 +40,7 @@ const Register: React.FC = () => {
       'Sedentário': 'SEDENTARIO',
       'Leve': 'LEVE',
       'Moderado': 'MODERADO',
-      'Intenso': 'INTENSO',
+      'Intenso': 'ALTO',
     };
 
     const objectiveMap: { [key: string]: string } = {
@@ -151,7 +151,7 @@ const Register: React.FC = () => {
                   <option>Sedentário</option>
                   <option>Leve</option>
                   <option>Moderado</option>
-                  <option>Intenso</option>
+                  <option>Alto</option>
                 </select>
               </div>
 

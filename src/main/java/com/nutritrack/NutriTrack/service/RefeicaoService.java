@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -67,8 +68,8 @@ public class RefeicaoService {
     }
 
     @Transactional(readOnly = true)
-    public List<RefeicaoResponseDTO> findByDateRange(UUID usuarioId, OffsetDateTime start, OffsetDateTime end) {
-        return refeicaoRepository.findByUsuarioIdAndDataHoraBetween(usuarioId, start, end).stream()
+    public List<RefeicaoResponseDTO> findByDateRange(UUID usuarioId, LocalDate start, LocalDate end) {
+        return refeicaoRepository.findByUsuarioIdAndDateBetween(usuarioId, start, end).stream()
             .map(refeicao -> {
                 RefeicaoResponseDTO responseDTO = refeicaoMapper.toResponseDTO(refeicao);
                 return nutrientCalculatorService.calculateNutrients(refeicao, responseDTO);

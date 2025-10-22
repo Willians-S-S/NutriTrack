@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -75,8 +76,8 @@ public class RefeicaoController {
     @Operation(summary = "Lista as refeições de um usuário por um intervalo de datas")
     public ResponseEntity<List<RefeicaoResponseDTO>> getRefeicoesByDateRange(
             @PathVariable UUID idUser,
-            @Parameter(description = "Data de início (ISO-8601)", required = true) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime start,
-            @Parameter(description = "Data de fim (ISO-8601)", required = true) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end
+            @Parameter(description = "Data de início (ISO-8601)", required = true) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate start,
+            @Parameter(description = "Data de fim (ISO-8601)", required = true) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate end
     ) {
         return ResponseEntity.ok(refeicaoService.findByDateRange(idUser, start, end));
     }

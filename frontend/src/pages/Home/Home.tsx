@@ -18,7 +18,7 @@ type HomeData = {
   currentWeight: number | null;
   dailyMacros: MacroData;
   dailyWaterMl: number;
-  targetCalories: number;
+  targetCalories: number | null;
 };
 
 function Home() {
@@ -70,7 +70,21 @@ function Home() {
       const waterData = waterResponse.ok ? await waterResponse.json() : [];
       const dailyWaterMl = waterData.length > 0 ? waterData[0].totalQuantidadeMl : 0;
 
-      const targetCalories = 2500;
+      const metaResponse = await fetch(
+        `/api/v1/usuarios/${userId}/metas/progresso?tipo=DIARIA`,
+        { headers }
+      );
+
+      let targetCalories: number | null = null;
+
+      if (metaResponse.ok) {
+        const metaData = await metaResponse.json();
+        if (metaData && metaData.calorias && metaData.calorias.objetivo) {
+          targetCalories = Math.round(metaData.calorias.objetivo);
+        }
+      } else {
+        console.warn("Nenhuma meta diária de calorias encontrada para o usuário.");
+      }
 
       setData({
         currentWeight,
@@ -103,7 +117,10 @@ function Home() {
   }
 
   const caloriesConsumed = Math.round(data.dailyMacros.calorias);
-  const caloriesRemaining = Math.max(0, data.targetCalories - caloriesConsumed);
+
+  const hasTarget = data.targetCalories !== null && data.targetCalories > 0;
+  const targetValue = data.targetCalories ?? 0;
+  const caloriesRemaining = Math.max(0, targetValue - caloriesConsumed);
 
   const totalMacros = data.dailyMacros.proteinasG + data.dailyMacros.carboidratosG + data.dailyMacros.gordurasG;
 
@@ -131,7 +148,12 @@ function Home() {
             <span className="card-value highlight">{caloriesConsumed.toLocaleString('pt-BR')} <span className="card-unit">kcal</span></span>
           </div>
           <div className="card">
-            <span className="card-label">Calorias Restantes (Meta: {data.targetCalories} kcal)</span>
+            <span className="card-label">
+              {hasTarget
+                ? `Calorias Restantes (Meta: ${targetValue.toLocaleString('pt-BR')} kcal)`
+                : 'Calorias Restantes (Sem Meta)'
+              }
+            </span>
             <span className="card-value success">{caloriesRemaining.toLocaleString('pt-BR')} <span className="card-unit">kcal</span></span>
           </div>
           <div className="card">

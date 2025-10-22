@@ -6,9 +6,9 @@ services:
     container_name: db_postgres
     restart: always
     environment:
-      - POSTGRES_USER=db_user
-      - POSTGRES_PASSWORD=senhaforte
-      - POSTGRES_DB=db_nutritrack
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: senhaforte
+      POSTGRES_DB: db_nutritrack
     ports:
       - "5432:5432"
     volumes:

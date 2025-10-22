@@ -47,31 +47,6 @@
     align-items: center;
     gap: 16px;
 
-    .notification {
-      position: relative;
-      cursor: pointer;
-      color: $text-dark;
-
-      & i {
-        font-size: 24px;
-        font-weight: bold;
-      }
-
-      .badge {
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        width: 10px;
-        height: 10px;
-        background: red;
-        border-radius: 50%;
-      }
-    }
-
-    /* mínimo ajuste para o link do perfil:
-       - sem sublinhado
-       - herda cor
-       - mesma "caixa" do ícone anterior */
     .profile-link {
       text-decoration: none;
       color: inherit;

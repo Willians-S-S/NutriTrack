@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/usuarios/{usuarioId}/metas")
+@RequestMapping("/api/v1/usuarios/{usuarioId}/metas")
 @RequiredArgsConstructor
 public class MetaController {
 

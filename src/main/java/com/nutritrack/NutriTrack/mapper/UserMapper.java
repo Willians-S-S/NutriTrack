@@ -48,7 +48,7 @@ public interface UserMapper {
      * @param usuario entidade Usuario
      * @return DTO de resposta com os dados do usuário
      */
-    @Mapping(source = "usuario", target = "peso")
+//    @Mapping(source = "usuario", target = "peso")
     UserResponseDTO toResponseDTO(Usuario usuario);
 
     default BigDecimal mapPeso(Usuario usuario) {

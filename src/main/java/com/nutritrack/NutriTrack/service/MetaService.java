@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.nutritrack.NutriTrack.entity.UnidadeMedida;
 
 /**
  * Serviço para gerenciar a lógica de negócios relacionada às metas nutricionais.
@@ -133,10 +134,18 @@ public class MetaService {
         Meta meta = metaRepository.findById(metaId)
                 .orElseThrow(() -> new EntityNotFoundException("Meta não encontrada com id: " + metaId));
 
-        meta.setCaloriasObjetivo(metaRequestDTO.caloriasObjetivo());
-        meta.setProteinasObjetivo(metaRequestDTO.proteinasObjetivo());
-        meta.setCarboidratosObjetivo(metaRequestDTO.carboidratosObjetivo());
-        meta.setGordurasObjetivo(metaRequestDTO.gordurasObjetivo());
+        if (metaRequestDTO.caloriasObjetivo() != null) {
+            meta.setCaloriasObjetivo(metaRequestDTO.caloriasObjetivo());
+        }
+        if (metaRequestDTO.proteinasObjetivo() != null) {
+            meta.setProteinasObjetivo(metaRequestDTO.proteinasObjetivo());
+        }
+        if (metaRequestDTO.carboidratosObjetivo() != null) {
+            meta.setCarboidratosObjetivo(metaRequestDTO.carboidratosObjetivo());
+        }
+        if (metaRequestDTO.gordurasObjetivo() != null) {
+            meta.setGordurasObjetivo(metaRequestDTO.gordurasObjetivo());
+        }
 
         Meta semanal = metaRepository
                 .findActiveMetaForDate(meta.getUsuario().getId(), TipoMeta.SEMANAL.name())
@@ -188,6 +197,8 @@ public class MetaService {
                 fimPeriodo.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC)
         );
 
+        
+
         BigDecimal caloriasConsumidas = BigDecimal.ZERO;
         BigDecimal proteinasConsumidas = BigDecimal.ZERO;
         BigDecimal carboidratosConsumidos = BigDecimal.ZERO;
@@ -196,6 +207,9 @@ public class MetaService {
         for (Refeicao refeicao : refeicoes) {
             for (ItemRefeicao item : refeicao.getItens()) {
                 BigDecimal quantidade = item.getQuantidade();
+                if (item.getUnidade() == UnidadeMedida.GRAMA) {
+                    quantidade = quantidade.divide(new BigDecimal("100"));
+                }
                 caloriasConsumidas = caloriasConsumidas.add(item.getAlimento().getCalorias().multiply(quantidade));
                 proteinasConsumidas = proteinasConsumidas.add(item.getAlimento().getProteinasG().multiply(quantidade));
                 carboidratosConsumidos = carboidratosConsumidos.add(item.getAlimento().getCarboidratosG().multiply(quantidade));

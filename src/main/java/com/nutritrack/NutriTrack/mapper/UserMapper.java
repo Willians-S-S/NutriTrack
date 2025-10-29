@@ -6,6 +6,7 @@ import com.nutritrack.NutriTrack.entity.RegistroPeso;
 import com.nutritrack.NutriTrack.entity.Usuario;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 import java.math.BigDecimal;
@@ -48,7 +49,7 @@ public interface UserMapper {
      * @param usuario entidade Usuario
      * @return DTO de resposta com os dados do usuário
      */
-//    @Mapping(source = "usuario", target = "peso")
+    @Mapping(target = "peso", expression = "java(mapPeso(usuario))")
     UserResponseDTO toResponseDTO(Usuario usuario);
 
     default BigDecimal mapPeso(Usuario usuario) {

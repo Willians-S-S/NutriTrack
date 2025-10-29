@@ -13,7 +13,6 @@
     margin: 0 0 16px 0;
   }
 
-  /* ===== Busca ===== */
   .search {
     position: relative;
     margin-bottom: 18px;
@@ -68,7 +67,6 @@
     }
   }
 
-  /* ===== Refeições ===== */
   .meals {
     display: flex;
     flex-direction: column;
@@ -139,7 +137,7 @@
         }
 
         .right.read-only .qty-tag {
-          display: none; /* Removido o círculo de quantidade de porção */
+          display: none;
         }
 
         .right.editing {
@@ -168,16 +166,15 @@
     .meal-actions {
       display: flex; justify-content: flex-end; gap: 10px; padding-top: 12px;
 
-      /* Botões de Salvar e Editar */
       .save-btn,
       .edit-btn {
-        height: 36px; /* Padronização da altura */
+        height: 36px;
         padding: 0 14px;
-        font-size: 14px; /* Padronização da fonte */
-        border-radius: 6px; /* Borda arredondada */
-        background-color: $primary-color; /* Cor verde (tom suave) */
-        color: white; /* Texto branco */
-        border: none; /* Sem borda preta */
+        font-size: 14px;
+        border-radius: 6px;
+        background-color: $primary-color;
+        color: white;
+        border: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -188,36 +185,34 @@
         }
       }
 
-      /* Botão de Cancelar */
       .ghost-btn {
-        background-color: #e0e0e0; /* Fundo cinza claro */
-        color: #616161; /* Texto cinza mais escuro */
-        border: 1px solid #616161; /* Borda cinza escuro */
-        border-radius: 6px; /* Borda arredondada */
-        height: 36px; /* Padronização da altura */
+        background-color: #e0e0e0;
+        color: #616161;
+        border: 1px solid #616161;
+        border-radius: 6px;
+        height: 36px;
         padding: 0 14px;
-        font-size: 14px; /* Padronização da fonte */
+        font-size: 14px;
         text-align: center;
         opacity: 0.7;
         transition: opacity 0.2s ease;
 
         &:hover {
-          opacity: 1; /* Aumenta a opacidade ao passar o mouse */
+          opacity: 1;
         }
       }
 
       .save-btn.saved {
-        background-color: #e5e5e5; /* Cor de fundo mais suave para 'salvo' */
-        color: #333; /* Texto em cor mais escura */
+        background-color: #e5e5e5;
+        color: #333;
       }
 
       .ghost-btn:hover {
-        background-color: rgba(176, 176, 176, 0.2); /* Efeito de hover suave para o botão fantasma */
+        background-color: rgba(176, 176, 176, 0.2);
       }
     }
   }
 
-  /* ===== Modal ===== */
   .modal-backdrop {
     position: fixed; inset: 0; background: rgba(0,0,0,0.3);
     display: grid; place-items: center; z-index: 50;

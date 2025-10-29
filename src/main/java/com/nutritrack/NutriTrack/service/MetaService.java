@@ -17,16 +17,17 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.math.RoundingMode;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.nutritrack.NutriTrack.entity.UnidadeMedida;
 
 /**
  * Serviço para gerenciar a lógica de negócios relacionada às metas nutricionais.
@@ -53,10 +54,31 @@ public class MetaService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + usuarioId));
 
-        if (metaRepository.existsByUsuarioIdAndTipo(usuarioId, metaRequestDTO.tipo())) {
-            throw new ConflictException(String.format("Já existe uma meta do tipo '%s' para este usuário.", metaRequestDTO.tipo()));
-        }
+        if (metaRequestDTO.tipo() == TipoMeta.DIARIA) {
+            Optional<Meta> existingMetaDiaria = metaRepository.findByUsuarioIdAndTipo(usuarioId, TipoMeta.DIARIA).stream().findFirst();
 
+            if (existingMetaDiaria.isPresent()) {
+                // Update existing goals
+                Meta metaDiaria = existingMetaDiaria.get();
+                metaDiaria.setCaloriasObjetivo(metaRequestDTO.caloriasObjetivo());
+                metaDiaria.setProteinasObjetivo(metaRequestDTO.proteinasObjetivo());
+                metaDiaria.setCarboidratosObjetivo(metaRequestDTO.carboidratosObjetivo());
+                metaDiaria.setGordurasObjetivo(metaRequestDTO.gordurasObjetivo());
+
+                Meta metaSemanal = metaRepository.findByUsuarioIdAndTipo(usuarioId, TipoMeta.SEMANAL).stream().findFirst()
+                        .orElseGet(() -> cloneMeta(metaDiaria, TipoMeta.SEMANAL, BigDecimal.valueOf(7)));
+                metaMultiply(metaSemanal, metaDiaria, BigDecimal.valueOf(7));
+
+                Meta metaMensal = metaRepository.findByUsuarioIdAndTipo(usuarioId, TipoMeta.MENSAL).stream().findFirst()
+                        .orElseGet(() -> cloneMeta(metaDiaria, TipoMeta.MENSAL, BigDecimal.valueOf(30)));
+                metaMultiply(metaMensal, metaDiaria, BigDecimal.valueOf(30));
+
+                List<Meta> updatedMetas = metaRepository.saveAll(List.of(metaDiaria, metaSemanal, metaMensal));
+                return updatedMetas.stream().map(metaMapper::toResponseDTO).toList();
+            }
+        }
+        
+        // Original create logic for when no daily goal exists
         Meta meta = metaMapper.toEntity(metaRequestDTO);
         meta.setUsuario(usuario);
 
@@ -112,10 +134,18 @@ public class MetaService {
         Meta meta = metaRepository.findById(metaId)
                 .orElseThrow(() -> new EntityNotFoundException("Meta não encontrada com id: " + metaId));
 
-        meta.setCaloriasObjetivo(metaRequestDTO.caloriasObjetivo());
-        meta.setProteinasObjetivo(metaRequestDTO.proteinasObjetivo());
-        meta.setCarboidratosObjetivo(metaRequestDTO.carboidratosObjetivo());
-        meta.setGordurasObjetivo(metaRequestDTO.gordurasObjetivo());
+        if (metaRequestDTO.caloriasObjetivo() != null) {
+            meta.setCaloriasObjetivo(metaRequestDTO.caloriasObjetivo());
+        }
+        if (metaRequestDTO.proteinasObjetivo() != null) {
+            meta.setProteinasObjetivo(metaRequestDTO.proteinasObjetivo());
+        }
+        if (metaRequestDTO.carboidratosObjetivo() != null) {
+            meta.setCarboidratosObjetivo(metaRequestDTO.carboidratosObjetivo());
+        }
+        if (metaRequestDTO.gordurasObjetivo() != null) {
+            meta.setGordurasObjetivo(metaRequestDTO.gordurasObjetivo());
+        }
 
         Meta semanal = metaRepository
                 .findActiveMetaForDate(meta.getUsuario().getId(), TipoMeta.SEMANAL.name())
@@ -163,9 +193,11 @@ public class MetaService {
 
         List<Refeicao> refeicoes = refeicaoRepository.findByUsuarioIdAndDateBetween(
                 usuarioId,
-                inicioPeriodo.atStartOfDay().toLocalDate(),
-                fimPeriodo.atTime(LocalTime.MAX).toLocalDate()
+                inicioPeriodo.atStartOfDay().atOffset(ZoneOffset.UTC),
+                fimPeriodo.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC)
         );
+
+        
 
         BigDecimal caloriasConsumidas = BigDecimal.ZERO;
         BigDecimal proteinasConsumidas = BigDecimal.ZERO;
@@ -175,6 +207,9 @@ public class MetaService {
         for (Refeicao refeicao : refeicoes) {
             for (ItemRefeicao item : refeicao.getItens()) {
                 BigDecimal quantidade = item.getQuantidade();
+                if (item.getUnidade() == UnidadeMedida.GRAMA) {
+                    quantidade = quantidade.divide(new BigDecimal("100"));
+                }
                 caloriasConsumidas = caloriasConsumidas.add(item.getAlimento().getCalorias().multiply(quantidade));
                 proteinasConsumidas = proteinasConsumidas.add(item.getAlimento().getProteinasG().multiply(quantidade));
                 carboidratosConsumidos = carboidratosConsumidos.add(item.getAlimento().getCarboidratosG().multiply(quantidade));

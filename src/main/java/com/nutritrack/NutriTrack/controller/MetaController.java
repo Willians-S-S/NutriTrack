@@ -18,7 +18,7 @@ import java.util.UUID;
  * Controlador REST para gerenciar as metas nutricionais dos usuários.
  */
 @RestController
-@RequestMapping("/usuarios/{usuarioId}/metas")
+@RequestMapping("/api/v1/usuarios/{usuarioId}/metas")
 @RequiredArgsConstructor
 public class MetaController {
 
@@ -32,8 +32,8 @@ public class MetaController {
      * @return Um ResponseEntity com a meta criada e o status HTTP 201 (Created).
      */
     @PostMapping
-    public ResponseEntity<MetaResponseDTO> create(@PathVariable UUID usuarioId, @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
-        MetaResponseDTO createdMeta = metaService.create(usuarioId, metaRequestDTO);
+    public ResponseEntity<List<MetaResponseDTO>> create(@PathVariable UUID usuarioId, @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
+        List<MetaResponseDTO> createdMeta = metaService.create(usuarioId, metaRequestDTO);
         return new ResponseEntity<>(createdMeta, HttpStatus.CREATED);
     }
 
@@ -59,11 +59,15 @@ public class MetaController {
      * @param metaRequestDTO O DTO com os novos dados da meta.
      * @return Um ResponseEntity com a meta atualizada e o status HTTP 200 (OK).
      */
+<<<<<<< HEAD
+    @PatchMapping("/{metaId}")
+=======
     @PutMapping("/{metaId}")
-    public ResponseEntity<MetaResponseDTO> updateMeta(
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
+    public ResponseEntity<List<MetaResponseDTO>> updateMeta(
             @PathVariable UUID metaId,
             @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
-        MetaResponseDTO updatedMeta = metaService.update(metaId, metaRequestDTO);
+        List<MetaResponseDTO> updatedMeta = metaService.update(metaId, metaRequestDTO);
         return ResponseEntity.ok(updatedMeta);
     }
 

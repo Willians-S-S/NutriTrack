@@ -1,5 +1,8 @@
 package com.nutritrack.NutriTrack.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nutritrack.NutriTrack.dto.RegistroAguaDiarioDTO;
 import com.nutritrack.NutriTrack.dto.RegistroAguaRequestDTO;
 import com.nutritrack.NutriTrack.dto.RegistroAguaResponseDTO;
@@ -35,6 +38,7 @@ import java.util.UUID;
 @Tag(name = "Registros de Água", description = "Endpoints para gerenciar os registros de consumo de água")
 public class RegistroAguaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegistroAguaController.class);
     private final RegistroAguaService registroAguaService;
 
     /**
@@ -49,6 +53,7 @@ public class RegistroAguaController {
             @PathVariable UUID idUser,
             @Valid @RequestBody RegistroAguaRequestDTO requestDTO
     ) {
+        logger.info("Received request to create water record: {}", requestDTO);
         RegistroAguaResponseDTO createdRegistro = registroAguaService.create(idUser, requestDTO);
         return new ResponseEntity<>(createdRegistro, HttpStatus.CREATED);
     }

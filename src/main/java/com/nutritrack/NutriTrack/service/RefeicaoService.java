@@ -1,6 +1,10 @@
 package com.nutritrack.NutriTrack.service;
 
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+
 import com.nutritrack.NutriTrack.dto.RefeicaoRequestDTO;
+// ...
 import com.nutritrack.NutriTrack.dto.RefeicaoResponseDTO;
 import com.nutritrack.NutriTrack.entity.Alimento;
 import com.nutritrack.NutriTrack.entity.ItemRefeicao;
@@ -69,7 +73,7 @@ public class RefeicaoService {
 
     @Transactional(readOnly = true)
     public List<RefeicaoResponseDTO> findByDateRange(UUID usuarioId, LocalDate start, LocalDate end) {
-        return refeicaoRepository.findByUsuarioIdAndDateBetween(usuarioId, start, end).stream()
+        return refeicaoRepository.findByUsuarioIdAndDateBetween(usuarioId, start.atStartOfDay().atOffset(ZoneOffset.UTC), end.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC)).stream()
             .map(refeicao -> {
                 RefeicaoResponseDTO responseDTO = refeicaoMapper.toResponseDTO(refeicao);
                 return nutrientCalculatorService.calculateNutrients(refeicao, responseDTO);

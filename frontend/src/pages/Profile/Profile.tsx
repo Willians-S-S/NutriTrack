@@ -182,15 +182,54 @@ export default function Profile() {
       dataFim: new Date().toISOString().split('T')[0], // Not ideal, but the backend requires it.
     };
 
+<<<<<<< HEAD
     let response;
     if (nutritionalGoals && nutritionalGoals.id) {
       const metaId = nutritionalGoals.id;
       response = await fetch(`/api/v1/usuarios/${userId}/metas/${metaId}`, {
+=======
+    const response = await fetch(`/api/v1/usuarios/${userId}/metas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao atualizar metas nutricionais");
+    }
+  }, [calorias, proteinas, carboidratos, gorduras]);
+
+  const submitUpdate = useCallback(async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const decodedToken = jwtDecode<JwtPayload>(token);
+      const userId = decodedToken.userId;
+
+      const profilePayload = {
+        nome: name,
+        alturaM: Number(height.toString().replace(",", ".")) / 100,
+        peso: Number(weight.toString().replace(",", ".")),
+        nivelAtividade: activity.toUpperCase(),
+        objetivoUsuario: goal.toUpperCase(),
+      };
+      
+      const profileResponse = await fetch(`/api/v1/usuarios/${userId}`, {
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+<<<<<<< HEAD
         body: JSON.stringify({
             ...payload,
             dataInicio: nutritionalGoals.dataInicio,
@@ -205,9 +244,13 @@ export default function Profile() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(payload),
+=======
+        body: JSON.stringify(profilePayload),
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
       });
     }
 
+<<<<<<< HEAD
     if (!response.ok) {
       const errorBody = await response.text();
       console.error("Erro do servidor:", errorBody);
@@ -244,6 +287,8 @@ export default function Profile() {
         body: JSON.stringify(profilePayload),
       });
 
+=======
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
       if (!profileResponse.ok) {
         throw new Error("Erro ao atualizar perfil");
       }

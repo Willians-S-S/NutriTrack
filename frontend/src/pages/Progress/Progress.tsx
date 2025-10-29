@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
+=======
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
 import "./Progress.scss";
 
 type TabKey = "diaria" | "semanal" | "mensal";
@@ -30,6 +33,7 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const initialData: Record<TabKey, PeriodData> = {
+<<<<<<< HEAD
   diaria: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
   semanal: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
   mensal: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
@@ -37,6 +41,15 @@ const initialData: Record<TabKey, PeriodData> = {
 
 export default function Progress() {
   const [tab, setTab] = useState<TabKey>("diaria");
+=======
+  daily: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+  weekly: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+  monthly: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+};
+
+export default function Progress() {
+  const [tab, setTab] = useState<TabKey>("daily");
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
   const [data, setData] = useState<Record<TabKey, PeriodData>>(initialData);
   const [loading, setLoading] = useState(true);
   const [weightHistory, setWeightHistory] = useState<any[]>([]);
@@ -72,6 +85,36 @@ export default function Progress() {
     }
   }, []);
 
+  const fetchWeightHistory = useCallback(async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const today = new Date();
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(today.getMonth() - 1);
+
+    const start = lastMonth.toISOString().split('T')[0];
+    const end = today.toISOString().split('T')[0];
+
+    try {
+      const response = await fetch(`/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWeightHistory(data.sort((a: any, b: any) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
+      } else {
+        console.error("Erro ao buscar histórico de peso");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar histórico de peso:", error);
+    }
+  }, []);
+
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
@@ -82,7 +125,11 @@ export default function Progress() {
       setLoading(true);
       try {
         const headers = { 'Authorization': `Bearer ${token}` };
+<<<<<<< HEAD
         const promises = TABS.map(t => fetch(`/api/v1/usuarios/${userId}/metas/progresso?tipo=${t.key.toUpperCase()}&_=${new Date().getTime()}`, { headers }));
+=======
+        const promises = TABS.map(t => fetch(`/api/v1/usuarios/${userId}/metas/progresso?tipo=${t.key.toUpperCase()}`, { headers }));
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
         const responses = await Promise.all(promises);
         const results = await Promise.all(responses.map(res => res.ok ? res.json() : null));
 
@@ -114,7 +161,11 @@ export default function Progress() {
 
     fetchData();
     fetchWeightHistory();
+<<<<<<< HEAD
   }, [location]);
+=======
+  }, [fetchWeightHistory]);
+>>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
 
   const currentData = data[tab];
 

@@ -5,6 +5,7 @@ import { LuWeight } from "react-icons/lu";
 import { MdOutlineWaterDrop } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import WaterModal from "../../components/WaterModal/WaterModal";
+import WeightModal from "../../components/WeightModal/WeightModal"; 
 import "./Home.scss";
 
 type MacroData = {
@@ -25,6 +26,7 @@ function Home() {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
+  const [isWeightModalOpen, setIsWeightModalOpen] = useState(false); 
   const navigate = useNavigate();
 
   const getTodayRange = useCallback(() => {
@@ -106,6 +108,13 @@ function Home() {
 
   const handleCloseWaterModal = (didUpdate: boolean) => {
     setIsWaterModalOpen(false);
+    if (didUpdate) {
+      fetchHomeData();
+    }
+  };
+
+  const handleCloseWeightModal = (didUpdate: boolean) => {
+    setIsWeightModalOpen(false);
     if (didUpdate) {
       fetchHomeData();
     }
@@ -194,7 +203,7 @@ function Home() {
 
         <div className="dashboard-actions">
           <Button title={<><IoMdAddCircleOutline size={24}/> Registrar Refeição</>} onClick={() => navigate('/foods')}></Button>
-          <Button title={<><LuWeight size={24} /> Adicionar Peso</>} onClick={() => navigate('/progress')} white={true}></Button>
+          <Button title={<><LuWeight size={24} /> Adicionar Peso</>} onClick={() => setIsWeightModalOpen(true)} white={true}></Button>
           <Button title={<><MdOutlineWaterDrop size={24} /> Consumo de Água</>} onClick={() => setIsWaterModalOpen(true)} white={true}></Button>
         </div>
       </div>
@@ -202,6 +211,12 @@ function Home() {
       <WaterModal
         isOpen={isWaterModalOpen}
         onClose={handleCloseWaterModal}
+      />
+
+      
+      <WeightModal
+        isOpen={isWeightModalOpen}
+        onClose={handleCloseWeightModal}
       />
     </>
   );

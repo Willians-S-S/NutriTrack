@@ -49,8 +49,9 @@ const WaterLogModal: React.FC<WaterLogModalProps> = ({ isOpen, onClose }) => {
         onClose(true);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.message || 'Erro ao registrar consumo de água.';
+        const errorMessage = JSON.stringify(errorData) || 'Erro ao registrar consumo de água.';
         setError(errorMessage);
+        console.error("Erro ao registrar consumo de água:", errorData);
         onClose(false);
       }
     } catch (err) {

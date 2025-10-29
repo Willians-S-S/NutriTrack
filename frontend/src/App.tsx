@@ -16,6 +16,8 @@ function AppWrapper() {
   );
 }
 
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 function App() {
   const location = useLocation();
   const noHeaderRoutes = ["/login", "/registrar"];
@@ -27,10 +29,10 @@ function App() {
       <Routes>
         <Route path="/registrar" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/foods" element={<Foods />} />
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+        <Route path="/foods" element={<ProtectedRoute><Foods /></ProtectedRoute>} />
       </Routes>
     </>
   );

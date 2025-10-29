@@ -149,4 +149,10 @@
       }
     }
   }
+
+  .weight-tracking {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 }

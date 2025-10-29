@@ -1,5 +1,8 @@
 package com.nutritrack.NutriTrack.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nutritrack.NutriTrack.dto.RegistroPesoRequestDTO;
 import com.nutritrack.NutriTrack.dto.RegistroPesoResponseDTO;
 import com.nutritrack.NutriTrack.service.RegistroPesoService;
@@ -34,6 +37,7 @@ import java.util.UUID;
 @Tag(name = "Registros de Peso", description = "Endpoints para gerenciar os registros de peso do usuário")
 public class RegistroPesoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegistroPesoController.class);
     private final RegistroPesoService registroPesoService;
 
     /**
@@ -48,6 +52,7 @@ public class RegistroPesoController {
         @PathVariable UUID idUser,
         @Valid @RequestBody RegistroPesoRequestDTO requestDTO
     ) {
+        logger.info("Received request to create weight record: {}", requestDTO);
         RegistroPesoResponseDTO createdRegistro = registroPesoService.create(idUser, requestDTO);
         return new ResponseEntity<>(createdRegistro, HttpStatus.CREATED);
     }

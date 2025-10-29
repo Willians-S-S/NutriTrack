@@ -32,8 +32,8 @@ public class MetaController {
      * @return Um ResponseEntity com a meta criada e o status HTTP 201 (Created).
      */
     @PostMapping
-    public ResponseEntity<MetaResponseDTO> create(@PathVariable UUID usuarioId, @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
-        MetaResponseDTO createdMeta = metaService.create(usuarioId, metaRequestDTO);
+    public ResponseEntity<List<MetaResponseDTO>> create(@PathVariable UUID usuarioId, @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
+        List<MetaResponseDTO> createdMeta = metaService.create(usuarioId, metaRequestDTO);
         return new ResponseEntity<>(createdMeta, HttpStatus.CREATED);
     }
 
@@ -60,10 +60,10 @@ public class MetaController {
      * @return Um ResponseEntity com a meta atualizada e o status HTTP 200 (OK).
      */
     @PutMapping("/{metaId}")
-    public ResponseEntity<MetaResponseDTO> updateMeta(
+    public ResponseEntity<List<MetaResponseDTO>> updateMeta(
             @PathVariable UUID metaId,
             @Valid @RequestBody MetaRequestDTO metaRequestDTO) {
-        MetaResponseDTO updatedMeta = metaService.update(metaId, metaRequestDTO);
+        List<MetaResponseDTO> updatedMeta = metaService.update(metaId, metaRequestDTO);
         return ResponseEntity.ok(updatedMeta);
     }
 

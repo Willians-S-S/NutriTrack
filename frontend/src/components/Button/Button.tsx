@@ -5,14 +5,18 @@ const Button = ({
   title,
   onClick,
   white = false,
+  red = false,
 }: {
   title: ReactNode;
   onClick: MouseEventHandler<HTMLButtonElement>;
   white?: boolean;
+  red?: boolean;
 }) => {
   return (
     <button
-      className={`custom-button ${white ? "custom-button--white" : ""}`}
+      className={`custom-button ${white ? "custom-button--white" : ""} ${
+        red ? "custom-button--red" : ""
+      }`}
       onClick={onClick}
     >
       {title}

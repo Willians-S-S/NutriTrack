@@ -8,6 +8,9 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=senhaforte
+      - POSTGRES_DB=db_nutritrack
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/nutri_track_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234

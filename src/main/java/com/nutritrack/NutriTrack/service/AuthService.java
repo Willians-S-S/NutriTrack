@@ -69,7 +69,19 @@ public class AuthService {
 
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
-        return userMapper.toResponseDTO(savedUsuario);
+
+        return new UserResponseDTO(
+                savedUsuario.getId(), savedUsuario.getNome(),
+                savedUsuario.getEmail(), savedUsuario.getAlturaM(),
+                savedUsuario.getRegistrosPeso().getFirst().getPesoKg(),
+                savedUsuario.getDataNascimento(),
+                savedUsuario.getNivelAtividade(),
+                savedUsuario.getObjetivoUsuario(),
+                savedUsuario.getRole(),
+                savedUsuario.getCriadoEm(),
+                savedUsuario.getAtualizadoEm());
+
+//        return userMapper.toResponseDTO(savedUsuario);
     }
 
     /**

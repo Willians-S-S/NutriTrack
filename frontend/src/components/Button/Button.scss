@@ -29,4 +29,14 @@
       color: #000;
     }
   }
+
+  &--red {
+    background-color: #dc2626;
+    color: white;
+
+    &:hover {
+      background-color: #b91c1c;
+      color: white;
+    }
+  }
 }

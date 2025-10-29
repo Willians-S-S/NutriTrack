@@ -22,7 +22,7 @@ public interface MetaRepository extends JpaRepository<Meta, UUID> {
      * @param tipo O tipo da meta (DIARIA, SEMANAL, MENSAL).
      * @return Um Optional contendo a meta encontrada, se houver.
      */
-    @Query(value = "SELECT * FROM metas m WHERE m.usuario_id = ?1 AND m.tipo = ?2  LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM metas m WHERE m.usuario_id = ?1 AND m.tipo = ?2 ORDER BY m.criado_em DESC LIMIT 1", nativeQuery = true)
     Optional<Meta> findActiveMetaForDate(UUID usuarioId, String tipo);
 
     Boolean existsByUsuarioIdAndTipo(UUID usuarioId, TipoMeta tipo);

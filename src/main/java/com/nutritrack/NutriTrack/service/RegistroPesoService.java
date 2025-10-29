@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,16 +51,19 @@ public class RegistroPesoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + usuarioId));
 
-        registroPesoRepository.findByUsuario_IdAndDataMedicao(usuarioId, requestDTO.dataMedicao())
-            .ifPresent(r -> {
-                throw new ConflictException("Já existe um registro de peso para a data: " + requestDTO.dataMedicao());
-            });
+        Optional<RegistroPeso> existingRecord = registroPesoRepository.findByUsuario_IdAndDataMedicao(usuarioId, requestDTO.dataMedicao());
 
-        RegistroPeso registro = registroPesoMapper.toEntity(requestDTO);
-        registro.setUsuario(usuario);
-
-        RegistroPeso savedRegistro = registroPesoRepository.save(registro);
-        return registroPesoMapper.toResponseDTO(savedRegistro);
+        if (existingRecord.isPresent()) {
+            RegistroPeso registro = existingRecord.get();
+            registro.setPesoKg(requestDTO.pesoKg());
+            RegistroPeso updatedRegistro = registroPesoRepository.save(registro);
+            return registroPesoMapper.toResponseDTO(updatedRegistro);
+        } else {
+            RegistroPeso registro = registroPesoMapper.toEntity(requestDTO);
+            registro.setUsuario(usuario);
+            RegistroPeso savedRegistro = registroPesoRepository.save(registro);
+            return registroPesoMapper.toResponseDTO(savedRegistro);
+        }
     }
 
     /**

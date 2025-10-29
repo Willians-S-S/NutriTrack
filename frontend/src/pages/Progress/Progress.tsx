@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import "./Progress.scss";
 
-type TabKey = "daily" | "weekly" | "monthly";
+type TabKey = "diaria" | "semanal" | "mensal";
 
 type Metric = {
-  title: string; // PT label
+  title: string;
   unit: "kcal" | "g";
   total: number;
-  changePct: number; // positive or negative
-  breakdown: { label: string; value: number }[]; // Café/Almoço/Jantar
+  changePct: number;
+  breakdown: { label: string; value: number }[];
 };
 
 type PeriodData = {
@@ -22,225 +23,115 @@ type PeriodData = {
   };
 };
 
-// --- MOCK DATA (ajuste livre depois) ---
-const DATA: Record<TabKey, PeriodData> = {
-  daily: {
-    calories: {
-      title: "Calorias Consumidas",
-      unit: "kcal",
-      total: 1850,
-      changePct: +10,
-      breakdown: [
-        { label: "Café", value: 450 },
-        { label: "Almoço", value: 900 },
-        { label: "Jantar", value: 500 },
-      ],
-    },
-    proteins: {
-      title: "Proteínas Consumidas",
-      unit: "g",
-      total: 120,
-      changePct: -5,
-      breakdown: [
-        { label: "Café", value: 30 },
-        { label: "Almoço", value: 60 },
-        { label: "Jantar", value: 30 },
-      ],
-    },
-    carbs: {
-      title: "Carboidratos Consumidos",
-      unit: "g",
-      total: 250,
-      changePct: +2,
-      breakdown: [
-        { label: "Café", value: 70 },
-        { label: "Almoço", value: 120 },
-        { label: "Jantar", value: 60 },
-      ],
-    },
-    goals: {
-      calories: { current: 1850, target: 2200, suffix: "kcal" },
-      proteins: { current: 120, target: 160, suffix: "g" },
-      carbs: { current: 250, target: 300, suffix: "g" },
-    },
-  },
-  weekly: {
-    calories: {
-      title: "Calorias Consumidas",
-      unit: "kcal",
-      total: 12600,
-      changePct: +4,
-      breakdown: [
-        { label: "Café", value: 3800 },
-        { label: "Almoço", value: 6000 },
-        { label: "Jantar", value: 2800 },
-      ],
-    },
-    proteins: {
-      title: "Proteínas Consumidas",
-      unit: "g",
-      total: 840,
-      changePct: +3,
-      breakdown: [
-        { label: "Café", value: 210 },
-        { label: "Almoço", value: 420 },
-        { label: "Jantar", value: 210 },
-      ],
-    },
-    carbs: {
-      title: "Carboidratos Consumidos",
-      unit: "g",
-      total: 1700,
-      changePct: -2,
-      breakdown: [
-        { label: "Café", value: 450 },
-        { label: "Almoço", value: 800 },
-        { label: "Jantar", value: 450 },
-      ],
-    },
-    goals: {
-      calories: { current: 12600, target: 15400, suffix: "kcal" }, // 2200*7
-      proteins: { current: 840, target: 1120, suffix: "g" },       // 160*7
-      carbs: { current: 1700, target: 2100, suffix: "g" },         // 300*7
-    },
-  },
-  monthly: {
-    calories: {
-      title: "Calorias Consumidas",
-      unit: "kcal",
-      total: 54000,
-      changePct: +1,
-      breakdown: [
-        { label: "Café", value: 16000 },
-        { label: "Almoço", value: 26000 },
-        { label: "Jantar", value: 12000 },
-      ],
-    },
-    proteins: {
-      title: "Proteínas Consumidas",
-      unit: "g",
-      total: 3600,
-      changePct: 0,
-      breakdown: [
-        { label: "Café", value: 900 },
-        { label: "Almoço", value: 1800 },
-        { label: "Jantar", value: 900 },
-      ],
-    },
-    carbs: {
-      title: "Carboidratos Consumidos",
-      unit: "g",
-      total: 7200,
-      changePct: +3,
-      breakdown: [
-        { label: "Café", value: 1900 },
-        { label: "Almoço", value: 3600 },
-        { label: "Jantar", value: 1700 },
-      ],
-    },
-    goals: {
-      calories: { current: 54000, target: 66000, suffix: "kcal" }, // 2200*30
-      proteins: { current: 3600, target: 4800, suffix: "g" },      // 160*30
-      carbs: { current: 7200, target: 9000, suffix: "g" },         // 300*30
-    },
-  },
-};
-
 const TABS: { key: TabKey; label: string }[] = [
-  { key: "daily", label: "Diário" },
-  { key: "weekly", label: "Semanal" },
-  { key: "monthly", label: "Mensal" },
+  { key: "diaria", label: "Diário" },
+  { key: "semanal", label: "Semanal" },
+  { key: "mensal", label: "Mensal" },
 ];
 
+const initialData: Record<TabKey, PeriodData> = {
+  diaria: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+  semanal: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+  mensal: { calories: { title: "Calorias", unit: "kcal", total: 0, changePct: 0, breakdown: [] }, proteins: { title: "Proteínas", unit: "g", total: 0, changePct: 0, breakdown: [] }, carbs: { title: "Carboidratos", unit: "g", total: 0, changePct: 0, breakdown: [] }, goals: { calories: { current: 0, target: 0, suffix: "kcal" }, proteins: { current: 0, target: 0, suffix: "g" }, carbs: { current: 0, target: 0, suffix: "g" } } },
+};
+
 export default function Progress() {
-  const [tab, setTab] = useState<TabKey>("daily");
-  const data = DATA[tab];
+  const [tab, setTab] = useState<TabKey>("diaria");
+  const [data, setData] = useState<Record<TabKey, PeriodData>>(initialData);
+  const [loading, setLoading] = useState(true);
   const [weightHistory, setWeightHistory] = useState<any[]>([]);
+  const location = useLocation();
+
+  const fetchWeightHistory = useCallback(async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const today = new Date();
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(today.getMonth() - 1);
+
+    const start = lastMonth.toISOString().split('T')[0];
+    const end = today.toISOString().split('T')[0];
+
+    try {
+      const response = await fetch(`/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}&_=${new Date().getTime()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWeightHistory(data.sort((a: any, b: any) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
+      } else {
+        console.error("Erro ao buscar histórico de peso");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar histórico de peso:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    async function fetchWeightHistory() {
-      const token = localStorage.getItem("token");
-      const today = new Date();
-      const lastMonth = new Date(today);
-      lastMonth.setMonth(today.getMonth() - 1);
-
-      const start = lastMonth.toISOString().split('T')[0];
-      const end = today.toISOString().split('T')[0];
-
+    async function fetchData() {
+      setLoading(true);
       try {
-        const response = await fetch(`/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const promises = TABS.map(t => fetch(`/api/v1/usuarios/${userId}/metas/progresso?tipo=${t.key.toUpperCase()}&_=${new Date().getTime()}`, { headers }));
+        const responses = await Promise.all(promises);
+        const results = await Promise.all(responses.map(res => res.ok ? res.json() : null));
+
+        const newData: Record<TabKey, PeriodData> = { ...initialData };
+
+        results.forEach((result, index) => {
+          if (result) {
+            const key = TABS[index].key;
+            newData[key] = {
+              calories: { title: "Calorias Consumidas", unit: "kcal", total: result.calorias.consumido, changePct: 0, breakdown: [] },
+              proteins: { title: "Proteínas Consumidas", unit: "g", total: result.proteinas.consumido, changePct: 0, breakdown: [] },
+              carbs: { title: "Carboidratos Consumidos", unit: "g", total: result.carboidratos.consumido, changePct: 0, breakdown: [] },
+              goals: {
+                calories: { current: result.calorias.consumido, target: result.calorias.objetivo, suffix: "kcal" },
+                proteins: { current: result.proteinas.consumido, target: result.proteinas.objetivo, suffix: "g" },
+                carbs: { current: result.carboidratos.consumido, target: result.carboidratos.objetivo, suffix: "g" },
+              },
+            };
           }
         });
-        if (response.ok) {
-          const data = await response.json();
-          setWeightHistory(data.sort((a: any, b: any) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
-        } else {
-          console.error("Erro ao buscar histórico de peso");
-        }
+
+        setData(newData);
       } catch (error) {
-        console.error("Erro ao buscar histórico de peso:", error);
+        console.error("Erro ao buscar dados de progresso:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
+    fetchData();
     fetchWeightHistory();
-  }, []);
+  }, [location]);
+
+  const currentData = data[tab];
 
   const goalsPerc = useMemo(() => {
     const pct = (curr: number, target: number) =>
-      Math.min(100, Math.round((curr / target) * 100));
+      target > 0 ? Math.min(100, Math.round((curr / target) * 100)) : 0;
     return {
-      calories: pct(data.goals.calories.current, data.goals.calories.target),
-      proteins: pct(data.goals.proteins.current, data.goals.proteins.target),
-      carbs: pct(data.goals.carbs.current, data.goals.carbs.target),
+      calories: pct(currentData.goals.calories.current, currentData.goals.calories.target),
+      proteins: pct(currentData.goals.proteins.current, currentData.goals.proteins.target),
+      carbs: pct(currentData.goals.carbs.current, currentData.goals.carbs.target),
     };
-  }, [data]);
+  }, [currentData]);
 
-  async function handleAddWeight(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
 
-    const form = e.currentTarget;
-    const dateInput = form.elements.namedItem("weightDate") as HTMLInputElement;
-    const weightInput = form.elements.namedItem("weightInput") as HTMLInputElement;
 
-    if (!dateInput.value || !weightInput.value) {
-      alert("Por favor, preencha a data e o peso.");
-      return;
-    }
-
-    const payload = {
-      dataMedicao: dateInput.value,
-      pesoKg: parseFloat(weightInput.value),
-    };
-
-    const token = localStorage.getItem("token");
-    try {
-      const response = await fetch(`/api/v1/registros-peso/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const newRecord = await response.json();
-        setWeightHistory(prev => [...prev, newRecord].sort((a, b) => new Date(a.dataMedicao).getTime() - new Date(b.dataMedicao).getTime()));
-        form.reset();
-      } else {
-        console.error("Erro ao adicionar registro de peso");
-        alert("Erro ao adicionar registro de peso. Verifique se já existe um registro para esta data.");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar registro de peso:", error);
-    }
+  if (loading) {
+    return <div className="progress-page loading">Carregando...</div>;
   }
 
   return (
@@ -263,9 +154,9 @@ export default function Progress() {
 
       {/* Metric cards */}
       <section className="metrics">
-        <MetricCard metric={data.calories} />
-        <MetricCard metric={data.proteins} />
-        <MetricCard metric={data.carbs} />
+        <MetricCard metric={currentData.calories} />
+        <MetricCard metric={currentData.proteins} />
+        <MetricCard metric={currentData.carbs} />
       </section>
 
       {/* Goals */}
@@ -273,23 +164,23 @@ export default function Progress() {
       <section className="goals">
         <GoalCard
           title="Calorias"
-          current={data.goals.calories.current}
-          target={data.goals.calories.target}
-          suffix={data.goals.calories.suffix}
+          current={currentData.goals.calories.current}
+          target={currentData.goals.calories.target}
+          suffix={currentData.goals.calories.suffix}
           percent={goalsPerc.calories}
         />
         <GoalCard
           title="Proteínas"
-          current={data.goals.proteins.current}
-          target={data.goals.proteins.target}
-          suffix={data.goals.proteins.suffix}
+          current={currentData.goals.proteins.current}
+          target={currentData.goals.proteins.target}
+          suffix={currentData.goals.proteins.suffix}
           percent={goalsPerc.proteins}
         />
         <GoalCard
           title="Carboidratos"
-          current={data.goals.carbs.current}
-          target={data.goals.carbs.target}
-          suffix={data.goals.carbs.suffix}
+          current={currentData.goals.carbs.current}
+          target={currentData.goals.carbs.target}
+          suffix={currentData.goals.carbs.suffix}
           percent={goalsPerc.carbs}
         />
       </section>
@@ -304,20 +195,7 @@ export default function Progress() {
             ))}
           </ul>
         </div>
-        <div className="card">
-          <h4>Adicionar Novo Registro</h4>
-          <form onSubmit={handleAddWeight} className="weight-form">
-            <div className="form-group">
-              <label htmlFor="weightDate">Data</label>
-              <input type="date" id="weightDate" name="weightDate" defaultValue={new Date().toISOString().split('T')[0]} />
-            </div>
-            <div className="form-group">
-              <label htmlFor="weightInput">Peso (kg)</label>
-              <input type="number" id="weightInput" name="weightInput" step="0.1" required />
-            </div>
-            <button type="submit">Adicionar</button>
-          </form>
-        </div>
+
       </section>
     </main>
   );
@@ -328,27 +206,27 @@ function MetricCard({ metric }: { metric: Metric }) {
   const badgeClass = `trend-badge ${isUp ? "up" : "down"}`;
   const valueText =
     metric.unit === "kcal"
-      ? `${metric.total} kcal`
-      : `${metric.total} g`;
+      ? `${metric.total.toFixed(0)} kcal`
+      : `${metric.total.toFixed(1)} g`;
 
   return (
     <div className="card metric-card">
       <div className="card-head">
         <span className="title">{metric.title}</span>
-        <span className={badgeClass}>
+        {/* <span className={badgeClass}>
           {isUp ? "↗︎" : "↘︎"} {metric.changePct > 0 ? `+${metric.changePct}%` : `${metric.changePct}%`}
-        </span>
+        </span> */}
       </div>
 
       <div className="big-value">{valueText}</div>
 
-      <div className="labels-row">
+      {/* <div className="labels-row">
         {metric.breakdown.map((b) => (
           <span key={b.label} className="label-item">
             {b.label}
           </span>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -374,7 +252,7 @@ function GoalCard({
       </div>
 
       <div className="goal-values">
-        {current} / {target} {suffix}
+        {current.toFixed(0)} / {target.toFixed(0)} {suffix}
       </div>
 
       <div className="track">

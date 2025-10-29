@@ -1,0 +1,91 @@
+@use '../../styles/variables.scss' as *;
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: grid;
+    place-items: center;
+    z-index: 50;
+}
+
+.modal-content {
+    width: min(400px, 92vw);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $shadow-darker;
+    padding: 18px;
+    z-index: 51;
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+
+        h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: $text-dark;
+        }
+
+        .close-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 0;
+            background: #f3f3f3;
+            cursor: pointer;
+            font-size: 18px;
+        }
+    }
+
+    .modal-body {
+        .weight-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+
+                label {
+                    font-size: 14px;
+                    color: $text-dark;
+                }
+
+                input {
+                    height: 40px;
+                    border: 1px solid rgba(0,0,0,0.12);
+                    border-radius: 8px;
+                    padding: 0 12px;
+                    font-size: 14px;
+                    color: $text-dark;
+                    outline: none;
+                }
+            }
+
+            button[type="submit"] {
+                height: 40px;
+                border: none;
+                border-radius: 8px;
+                background: $primary-color;
+                color: black;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.15s;
+
+                &:hover {
+                    background: $secondary-color;
+                    color: $text-white;
+                }
+            }
+        }
+    }
+}

@@ -3,8 +3,9 @@ import { useEffect, useState, useCallback } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { LuWeight } from "react-icons/lu";
 import { MdOutlineWaterDrop } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import WaterModal from "../../components/WaterModal/WaterModal";
+import WeightModal from "../../components/WeightModal/WeightModal"; 
 import "./Home.scss";
 
 type MacroData = {
@@ -25,7 +26,9 @@ function Home() {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
+  const [isWeightModalOpen, setIsWeightModalOpen] = useState(false); 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getTodayRange = useCallback(() => {
     const today = new Date();
@@ -51,11 +54,11 @@ function Home() {
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
-      const userResponse = await fetch(`/api/v1/usuarios/${userId}`, { headers });
+      const userResponse = await fetch(`/api/v1/usuarios/${userId}?_=${new Date().getTime()}`, { headers });
       const userData = userResponse.ok ? await userResponse.json() : { peso: null };
       const currentWeight = userData.peso ?? null;
 
-      const mealsResponse = await fetch(`/api/v1/refeicoes/usuario/${userId}?start=${start}&end=${end}`, { headers });
+      const mealsResponse = await fetch(`/api/v1/refeicoes/usuario/${userId}?start=${start}&end=${end}&_=${new Date().getTime()}`, { headers });
       const mealsData = mealsResponse.ok ? await mealsResponse.json() : [];
 
       let dailyMacros: MacroData = { calorias: 0, proteinasG: 0, carboidratosG: 0, gordurasG: 0 };
@@ -66,12 +69,12 @@ function Home() {
         dailyMacros.gordurasG += meal.totalGordurasG ? parseFloat(meal.totalGordurasG) : 0;
       });
 
-      const waterResponse = await fetch(`/api/v1/registros-agua/summary/${userId}?start=${dateOnly}&end=${dateOnly}`, { headers });
+      const waterResponse = await fetch(`/api/v1/registros-agua/summary/${userId}?start=${dateOnly}&end=${dateOnly}&_=${new Date().getTime()}`, { headers });
       const waterData = waterResponse.ok ? await waterResponse.json() : [];
       const dailyWaterMl = waterData.length > 0 ? waterData[0].totalQuantidadeMl : 0;
 
       const metaResponse = await fetch(
-        `/api/v1/usuarios/${userId}/metas/progresso?tipo=DIARIA`,
+        `/api/v1/usuarios/${userId}/metas/progresso?tipo=DIARIA&_=${new Date().getTime()}`,
         { headers }
       );
 
@@ -102,10 +105,17 @@ function Home() {
 
   useEffect(() => {
     fetchHomeData();
-  }, [fetchHomeData]);
+  }, [fetchHomeData, location]);
 
   const handleCloseWaterModal = (didUpdate: boolean) => {
     setIsWaterModalOpen(false);
+    if (didUpdate) {
+      fetchHomeData();
+    }
+  };
+
+  const handleCloseWeightModal = (didUpdate: boolean) => {
+    setIsWeightModalOpen(false);
     if (didUpdate) {
       fetchHomeData();
     }
@@ -194,7 +204,7 @@ function Home() {
 
         <div className="dashboard-actions">
           <Button title={<><IoMdAddCircleOutline size={24}/> Registrar Refeição</>} onClick={() => navigate('/foods')}></Button>
-          <Button title={<><LuWeight size={24} /> Adicionar Peso</>} onClick={() => navigate('/progress')} white={true}></Button>
+          <Button title={<><LuWeight size={24} /> Adicionar Peso</>} onClick={() => setIsWeightModalOpen(true)} white={true}></Button>
           <Button title={<><MdOutlineWaterDrop size={24} /> Consumo de Água</>} onClick={() => setIsWaterModalOpen(true)} white={true}></Button>
         </div>
       </div>
@@ -202,6 +212,12 @@ function Home() {
       <WaterModal
         isOpen={isWaterModalOpen}
         onClose={handleCloseWaterModal}
+      />
+
+      
+      <WeightModal
+        isOpen={isWeightModalOpen}
+        onClose={handleCloseWeightModal}
       />
     </>
   );

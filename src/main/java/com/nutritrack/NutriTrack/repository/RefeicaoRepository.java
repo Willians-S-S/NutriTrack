@@ -1,5 +1,7 @@
 package com.nutritrack.NutriTrack.repository;
 
+import java.time.OffsetDateTime;
+
 import com.nutritrack.NutriTrack.entity.Refeicao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,8 +15,8 @@ import java.util.UUID;
 @Repository
 public interface RefeicaoRepository extends JpaRepository<Refeicao, UUID> {
 
-    @Query(value = "SELECT * FROM refeicoes r WHERE r.id_usuario = :usuarioId AND CAST(r.data_hora AS DATE) BETWEEN :startDate AND :endDate", nativeQuery = true)
-    List<Refeicao> findByUsuarioIdAndDateBetween(@Param("usuarioId") UUID usuarioId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT r FROM Refeicao r WHERE r.usuario.id = :usuarioId AND r.dataHora BETWEEN :startDate AND :endDate")
+    List<Refeicao> findByUsuarioIdAndDateBetween(@Param("usuarioId") UUID usuarioId, @Param("startDate") OffsetDateTime startDate, @Param("endDate") OffsetDateTime endDate);
 
     List<Refeicao> findByUsuarioId(UUID usuarioId);
 

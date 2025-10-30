@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.annotations.servers.Server; 
 
 /**
  * Configura as definições globais da documentação da API gerada pelo OpenAPI 3 (Swagger).

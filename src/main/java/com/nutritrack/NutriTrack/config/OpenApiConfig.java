@@ -27,7 +27,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(title = "NutriTrack API", version = "v1", description = "API para monitoramento nutricional."),
-    security = @SecurityRequirement(name = "bearerAuth")
+    security = @SecurityRequirement(name = "bearerAuth"),
+    servers = {
+        @Server(url = "https://nutritrack-production-cfa6.up.railway.app")
+    }
 )
 @SecurityScheme(
     name = "bearerAuth",
@@ -37,5 +40,5 @@ import org.springframework.context.annotation.Configuration;
     bearerFormat = "JWT",
     in = SecuritySchemeIn.HEADER
 )
-public class OpenApiConfig {
-}
+public class OpenApiConfig { }
+

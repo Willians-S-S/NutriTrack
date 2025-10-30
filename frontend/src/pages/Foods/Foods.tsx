@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import "./Foods.scss";
 import Button from "../../components/Button/Button";
 import FoodModal from "../../components/FoodModal/FoodModal";
@@ -63,7 +63,7 @@ const MOCK_MEASURES: { key: MeasureKey; label: string }[] = [
     { key: "UNIDADE", label: "unidade" },
 ];
 
-const MACRO_BASE_DIVISOR = 100;
+
 
 export default function Foods() {
   const [query, setQuery] = useState("");
@@ -169,12 +169,9 @@ export default function Foods() {
     fetchMeals();
   }, [fetchMeals]);
 
-  const activeFoodData = activeFood as AlimentoResponseDTO;
 
-  const totalKcal = useMemo(() => activeFoodData ? Math.round((activeFoodData.calorias / MACRO_BASE_DIVISOR) * amount) : 0, [activeFoodData, amount]);
-  const totalCarbs = useMemo(() => activeFoodData ? +((activeFoodData.carboidratosG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
-  const totalFat = useMemo(() => activeFoodData ? +((activeFoodData.gordurasG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
-  const totalProtein = useMemo(() => activeFoodData ? +((activeFoodData.proteinasG / MACRO_BASE_DIVISOR) * amount).toFixed(1) : 0, [activeFoodData, amount]);
+
+
 
   function openModal(food: CatalogFood, preset: MealKey | null) {
     setActiveFood(food);
@@ -204,12 +201,6 @@ export default function Foods() {
 
     setLoading(true);
     setError(null);
-
-    const newItem: Omit<ItemRefeicaoResponseDTO, 'id' | 'alimento' | 'observacoes'> & { alimento: AlimentoResumidoDTO } = {
-        alimento: { id: activeFood.id, nome: activeFood.nome },
-        quantidade: amount,
-        unidade: unit,
-    };
 
     const existingMeal = meals[selectedMealType];
     const { dataHora } = getTodayRange();

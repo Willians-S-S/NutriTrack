@@ -114,7 +114,7 @@ function Home() {
     }
   };
 
-  const handleCloseWeightModal = (didUpdate: boolean) => {
+  const handleCloseWeightModal = (didUpdate: boolean = false) => {
     setIsWeightModalOpen(false);
     if (didUpdate) {
       fetchHomeData();

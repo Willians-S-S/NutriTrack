@@ -199,8 +199,6 @@ export default function Progress() {
 }
 
 function MetricCard({ metric }: { metric: Metric }) {
-  const isUp = metric.changePct >= 0;
-  const badgeClass = `trend-badge ${isUp ? "up" : "down"}`;
   const valueText =
     metric.unit === "kcal"
       ? `${metric.total.toFixed(0)} kcal`

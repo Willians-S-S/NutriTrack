@@ -1,6 +1,5 @@
 import "./Header.scss";
 import logo from "../../assets/logo.png";
-import { BsBell } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { NavLink } from "react-router-dom";
 

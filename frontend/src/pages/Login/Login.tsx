@@ -2,7 +2,8 @@ import { jwtDecode } from "jwt-decode";
 import logo from "../../assets/logo-2.png"
 import Button from "../../components/Button/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { MouseEvent, useState } from "react";
+import type { MouseEvent } from "react";
+import { useState } from "react";
 import "./Login.scss";
 
 function Login() {

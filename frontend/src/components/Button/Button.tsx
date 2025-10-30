@@ -6,11 +6,13 @@ const Button = ({
   onClick,
   white = false,
   red = false,
+  disabled = false,
 }: {
   title: ReactNode;
   onClick: MouseEventHandler<HTMLButtonElement>;
   white?: boolean;
   red?: boolean;
+  disabled?: boolean;
 }) => {
   return (
     <button
@@ -18,6 +20,7 @@ const Button = ({
         red ? "custom-button--red" : ""
       }`}
       onClick={onClick}
+      disabled={disabled}
     >
       {title}
     </button>

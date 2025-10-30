@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'https://nutritrack-production-cfa6.up.railway.app',
         changeOrigin: true,
       },
     },

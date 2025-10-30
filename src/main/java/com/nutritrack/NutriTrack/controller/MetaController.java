@@ -6,7 +6,9 @@ import com.nutritrack.NutriTrack.dto.MetaResponseDTO;
 import com.nutritrack.NutriTrack.enums.TipoMeta;
 import com.nutritrack.NutriTrack.service.MetaService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +21,10 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v1/usuarios/{usuarioId}/metas")
-@RequiredArgsConstructor
 public class MetaController {
 
-    private final MetaService metaService;
+    @Autowired
+    private MetaService metaService;
 
     /**
      * Cria uma nova meta nutricional para um usuário.
@@ -59,11 +61,7 @@ public class MetaController {
      * @param metaRequestDTO O DTO com os novos dados da meta.
      * @return Um ResponseEntity com a meta atualizada e o status HTTP 200 (OK).
      */
-<<<<<<< HEAD
     @PatchMapping("/{metaId}")
-=======
-    @PutMapping("/{metaId}")
->>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
     public ResponseEntity<List<MetaResponseDTO>> updateMeta(
             @PathVariable UUID metaId,
             @Valid @RequestBody MetaRequestDTO metaRequestDTO) {

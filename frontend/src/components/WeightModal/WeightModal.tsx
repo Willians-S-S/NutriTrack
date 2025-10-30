@@ -28,7 +28,7 @@ export default function WeightModal({ isOpen, onClose }: WeightModalProps) {
 
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`/api/v1/registros-peso/${userId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/registros-peso/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

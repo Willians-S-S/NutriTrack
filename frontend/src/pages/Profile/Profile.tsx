@@ -30,7 +30,7 @@ export default function Profile() {
       const decodedToken = jwtDecode<JwtPayload>(token);
       const userId = decodedToken.userId;
 
-      const response = await fetch(`/api/v1/usuarios/${userId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +66,7 @@ export default function Profile() {
       const decodedToken = jwtDecode<JwtPayload>(token);
       const userId = decodedToken.userId;
 
-      const response = await fetch(`/api/v1/usuarios/${userId}/metas?tipo=DIARIA`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}/metas?tipo=DIARIA`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -183,7 +183,7 @@ export default function Profile() {
     if (nutritionalGoals && nutritionalGoals.id) {
       // Atualiza meta existente
       const metaId = nutritionalGoals.id;
-      response = await fetch(`/api/v1/usuarios/${userId}/metas/${metaId}`, {
+      response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}/metas/${metaId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export default function Profile() {
       });
     } else {
       // Cria nova meta
-      response = await fetch(`/api/v1/usuarios/${userId}/metas`, {
+      response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}/metas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ export default function Profile() {
         objetivoUsuario: goal.toUpperCase(),
       };
       
-      const profileResponse = await fetch(`/api/v1/usuarios/${userId}`, {
+      const profileResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

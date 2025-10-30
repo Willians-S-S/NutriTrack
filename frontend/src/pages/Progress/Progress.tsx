@@ -56,7 +56,7 @@ export default function Progress() {
     const end = today.toISOString().split('T')[0];
 
     try {
-      const response = await fetch(`/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}&_=${new Date().getTime()}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/registros-peso/usuario/${userId}?start=${start}&end=${end}&_=${new Date().getTime()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -82,7 +82,7 @@ export default function Progress() {
       setLoading(true);
       try {
         const headers = { 'Authorization': `Bearer ${token}` };
-        const promises = TABS.map(t => fetch(`/api/v1/usuarios/${userId}/metas/progresso?tipo=${t.key.toUpperCase()}&_=${new Date().getTime()}`, { headers }));
+        const promises = TABS.map(t => fetch(`${import.meta.env.VITE_API_URL}/api/v1/usuarios/${userId}/metas/progresso?tipo=${t.key.toUpperCase()}&_=${new Date().getTime()}`, { headers }));
         const responses = await Promise.all(promises);
         const results = await Promise.all(responses.map(res => res.ok ? res.json() : null));
 

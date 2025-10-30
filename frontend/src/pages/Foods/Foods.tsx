@@ -106,7 +106,7 @@ export default function Foods() {
       setError(null);
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`/api/v1/alimentos?nome=${encodeURIComponent(query)}&size=10`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/alimentos?nome=${encodeURIComponent(query)}&size=10`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
@@ -143,7 +143,7 @@ export default function Foods() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/v1/refeicoes/usuario/${userId}?start=${start}&end=${end}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/refeicoes/usuario/${userId}?start=${start}&end=${end}`, {
           headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -229,8 +229,8 @@ export default function Foods() {
 
     try {
         const url = isUpdate
-            ? `/api/v1/refeicoes/${userId}/${existingMeal.id}`
-            : `/api/v1/refeicoes/${userId}`;
+            ? `${import.meta.env.VITE_API_URL}/api/v1/refeicoes/${userId}/${existingMeal.id}`
+            : `${import.meta.env.VITE_API_URL}/api/v1/refeicoes/${userId}`;
         const method = isUpdate ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
@@ -283,7 +283,7 @@ export default function Foods() {
     }
 
     try {
-        const response = await fetch(`/api/v1/refeicoes/${userId}/${mealToSave.id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/refeicoes/${userId}/${mealToSave.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ export default function Foods() {
     setError(null);
 
     try {
-        const response = await fetch(`/api/v1/refeicoes/${userId}/${mealToDelete.id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/refeicoes/${userId}/${mealToDelete.id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

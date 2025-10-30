@@ -36,7 +36,7 @@ const WaterLogModal: React.FC<WaterLogModalProps> = ({ isOpen, onClose }) => {
     };
 
     try {
-      const response = await fetch(`/api/v1/registros-agua/${userId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/registros-agua/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

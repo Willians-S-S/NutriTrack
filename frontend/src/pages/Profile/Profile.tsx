@@ -8,8 +8,8 @@ type Activity = "sedentario" | "leve" | "moderado" | "alto" | "atleta";
 
 type ProfileData = {
   name: string;
-  weight: number | null;   // kg
-  height: number | null;   // cm
+  weight: number | null;
+  height: number | null;
   goal: Goal;
   activity: Activity;
 };
@@ -39,8 +39,8 @@ export default function Profile() {
         const userData = await response.json();
         setData({
           name: userData.nome,
-          weight: userData.peso, // Assuming the backend sends these fields
-          height: userData.alturaM * 100, // Convert meters to cm
+          weight: userData.peso,
+          height: userData.alturaM * 100,
           goal: userData.objetivoUsuario.toLowerCase(),
           activity: userData.nivelAtividade.toLowerCase(),
         });
@@ -92,7 +92,6 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Form (modo edição)
   const [name, setName] = useState("");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
@@ -100,14 +99,12 @@ export default function Profile() {
   const [activity, setActivity] = useState<Activity>("sedentario");
   const [errors, setErrors] = useState<{ name?: string; weight?: string; height?: string; calorias?: string; proteinas?: string; carboidratos?: string; gorduras?: string; }>({});
 
-  // Nutritional Goals state
   const [nutritionalGoals, setNutritionalGoals] = useState<any>(null);
   const [calorias, setCalorias] = useState("");
   const [proteinas, setProteinas] = useState("");
   const [carboidratos, setCarboidratos] = useState("");
   const [gorduras, setGorduras] = useState("");
 
-  // IMC (modo visualização)
   const bmiView = useMemo(() => {
     if (!data || !data.weight || !data.height) return null;
     const h = data.height / 100;
@@ -179,64 +176,27 @@ export default function Profile() {
       carboidratosObjetivo: Number(carboidratos.toString().replace(",", ".")),
       gordurasObjetivo: Number(gorduras.toString().replace(",", ".")),
       dataInicio: new Date().toISOString().split('T')[0],
-      dataFim: new Date().toISOString().split('T')[0], // Not ideal, but the backend requires it.
+      dataFim: new Date().toISOString().split('T')[0],
     };
 
-<<<<<<< HEAD
     let response;
     if (nutritionalGoals && nutritionalGoals.id) {
+      // Atualiza meta existente
       const metaId = nutritionalGoals.id;
       response = await fetch(`/api/v1/usuarios/${userId}/metas/${metaId}`, {
-=======
-    const response = await fetch(`/api/v1/usuarios/${userId}/metas`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error("Erro ao atualizar metas nutricionais");
-    }
-  }, [calorias, proteinas, carboidratos, gorduras]);
-
-  const submitUpdate = useCallback(async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const decodedToken = jwtDecode<JwtPayload>(token);
-      const userId = decodedToken.userId;
-
-      const profilePayload = {
-        nome: name,
-        alturaM: Number(height.toString().replace(",", ".")) / 100,
-        peso: Number(weight.toString().replace(",", ".")),
-        nivelAtividade: activity.toUpperCase(),
-        objetivoUsuario: goal.toUpperCase(),
-      };
-      
-      const profileResponse = await fetch(`/api/v1/usuarios/${userId}`, {
->>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-<<<<<<< HEAD
         body: JSON.stringify({
-            ...payload,
-            dataInicio: nutritionalGoals.dataInicio,
-            dataFim: nutritionalGoals.dataFim
+          ...payload,
+          dataInicio: nutritionalGoals.dataInicio,
+          dataFim: nutritionalGoals.dataFim
         }),
       });
     } else {
+      // Cria nova meta
       response = await fetch(`/api/v1/usuarios/${userId}/metas`, {
         method: 'POST',
         headers: {
@@ -244,13 +204,9 @@ export default function Profile() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(payload),
-=======
-        body: JSON.stringify(profilePayload),
->>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
       });
     }
 
-<<<<<<< HEAD
     if (!response.ok) {
       const errorBody = await response.text();
       console.error("Erro do servidor:", errorBody);
@@ -287,8 +243,6 @@ export default function Profile() {
         body: JSON.stringify(profilePayload),
       });
 
-=======
->>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
       if (!profileResponse.ok) {
         throw new Error("Erro ao atualizar perfil");
       }
@@ -303,7 +257,7 @@ export default function Profile() {
         goal: updatedUserData.objetivoUsuario.toLowerCase(),
         activity: updatedUserData.nivelAtividade.toLowerCase(),
       });
-      fetchNutritionalGoals(); // Refetch goals to display the updated values
+      fetchNutritionalGoals();
       setIsEditing(false);
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
@@ -335,7 +289,6 @@ export default function Profile() {
 
         {!isEditing ? (
           <>
-            {/* ======= VISUALIZAÇÃO ======= */}
             <section className="info-list">
               <div className="row name-row">
                 <span className="label">Nome</span>
@@ -394,9 +347,7 @@ export default function Profile() {
           </>
         ) : (
           <>
-            {/* ======= EDIÇÃO ======= */}
             <form className="form" onSubmit={submitUpdate}>
-              {/* Nome */}
               <div className="grid one">
                 <div className="field">
                   <label htmlFor="name">Nome</label>
@@ -413,7 +364,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Peso / Altura */}
               <div className="grid two">
                 <div className="field">
                   <label htmlFor="weight">Peso (Kg)</label>
@@ -446,7 +396,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Meta / Nível de atividade LADO A LADO */}
               <div className="grid two">
                 <div className="field">
                   <label htmlFor="goal">Meta</label>
@@ -481,7 +430,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Nutritional Goals */}
               <div className="grid four">
                 <div className="field">
                   <label htmlFor="calorias">Calorias (kcal)</label>

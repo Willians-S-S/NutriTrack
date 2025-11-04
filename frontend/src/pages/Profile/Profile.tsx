@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import "./Profile.scss";
 import Button from "../../components/Button/Button";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 type Goal = "perder_peso" | "manter_peso" | "ganhar_peso" | "performance" | "saude";
 type Activity = "sedentario" | "leve" | "moderado" | "alto" | "atleta";
@@ -20,6 +21,7 @@ interface JwtPayload {
 
 export default function Profile() {
   const [data, setData] = useState<ProfileData | null>(null);
+  const navigate = useNavigate();
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -266,6 +268,13 @@ export default function Profile() {
     }
   }, [activity, goal, height, name, validateForm, weight, submitGoals, fetchNutritionalGoals]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    navigate("/login");
+  };
+
   if (!data) {
     return <div className="loading-profile">Carregando perfil...</div>;
   }
@@ -342,6 +351,7 @@ export default function Profile() {
             </section>
 
             <div className="footer-actions">
+              <Button title="Deslogar" onClick={handleLogout} red />
               <Button title="Editar" onClick={startEdit} />
             </div>
           </>

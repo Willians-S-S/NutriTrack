@@ -18,16 +18,49 @@ const Register: React.FC = () => {
   const [objective, setObjective] = useState('');
   const navigate = useNavigate();
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const showModal = (title: string, message: string) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    if (isSuccess) {
+      navigate('/login');
+    }
+    setIsSuccess(false);
+  };
+  const stopPropagation = (e: MouseEvent) => e.stopPropagation();
+
+
   async function handleRegister(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
+    setIsSuccess(false);
 
     if (!nome || !email || !password || !confirmPassword || !age || !gender || !weight || !height || !activityLevel || !objective) {
-      alert("Por favor, preencha todos os campos.");
+      showModal("Erro de Validação", "Por favor, preencha todos os campos.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showModal("Erro de Validação", "Por favor, insira um e-mail válido.");
+      return;
+    }
+
+    if (password.length < 8) {
+      showModal("Erro de Validação", "A senha deve ter pelo menos 8 caracteres.");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("As senhas não conferem.");
+      showModal("Erro de Validação", "As senhas não conferem.");
       return;
     }
 
@@ -70,15 +103,15 @@ const Register: React.FC = () => {
       });
 
       if (response.ok) {
-        alert("Cadastro realizado com sucesso!");
-        navigate('/login');
+        setIsSuccess(true);
+        showModal("Sucesso!", "Cadastro realizado com sucesso!");
       } else {
         const errorData = await response.json();
-        alert(`Erro ao cadastrar: ${errorData.message}`);
+        showModal("Erro ao cadastrar", errorData.message || "Ocorreu um erro desconhecido.");
       }
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-      alert('Ocorreu um erro ao tentar cadastrar. Tente novamente.');
+      showModal("Erro", "Ocorreu um erro ao tentar cadastrar. Tente novamente.");
     }
   }
 
@@ -87,7 +120,7 @@ const Register: React.FC = () => {
       <div className="container">
         <div className="register-container">
           <div className="register-left">
-            <img src={logo} alt="Logo" className="logo"/>
+            <img src={logo} alt="Logo" className="logo" />
             <p>Seu diário alimentar inteligente.</p>
           </div>
           <div className="register-right">
@@ -109,7 +142,7 @@ const Register: React.FC = () => {
 
               <div className="form-group">
                 <label htmlFor="password">Senha</label>
-                <input type="password" id="password" placeholder="Crie uma senha forte" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input type="password" id="password" placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
 
               <div className="form-group">
@@ -125,7 +158,7 @@ const Register: React.FC = () => {
                 <div className="form-group">
                   <label htmlFor="gender">Sexo</label>
                   <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
-                    <option>Selecione</option>
+                    <option value="">Selecione</option>
                     <option>Masculino</option>
                     <option>Feminino</option>
                     <option>Outro</option>
@@ -147,7 +180,7 @@ const Register: React.FC = () => {
               <div className="form-group">
                 <label>Nível de atividade física</label>
                 <select value={activityLevel} onChange={(e) => setActivityLevel(e.target.value)}>
-                  <option>Selecione</option>
+                  <option value="">Selecione</option>
                   <option>Sedentário</option>
                   <option>Leve</option>
                   <option>Moderado</option>
@@ -158,18 +191,31 @@ const Register: React.FC = () => {
               <div className="form-group">
                 <label>Objetivo</label>
                 <select value={objective} onChange={(e) => setObjective(e.target.value)}>
-                  <option>Selecione</option>
+                  <option value="">Selecione</option>
                   <option>Perder peso</option>
                   <option>Manter peso</option>
                   <option>Ganhar peso</option>
                 </select>
               </div>
 
-              <Button title='Cadastrar-se' onClick={handleRegister}/>
+
+              <Button title='Cadastrar-se' onClick={handleRegister} />
             </form>
           </div>
         </div>
       </div>
+
+      {modalOpen && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={stopPropagation}>
+            <h3>{modalTitle}</h3>
+            <p>{modalMessage}</p>
+            <button className="modal-close-btn" onClick={handleCloseModal}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

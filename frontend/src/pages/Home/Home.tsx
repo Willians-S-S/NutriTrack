@@ -43,11 +43,6 @@ function Home() {
   const fetchHomeData = useCallback(async () => {
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
-    if (!userId || !token) {
-      setLoading(false);
-      navigate('/login');
-      return;
-    }
 
     setLoading(true);
     const { start, end, dateOnly } = getTodayRange();

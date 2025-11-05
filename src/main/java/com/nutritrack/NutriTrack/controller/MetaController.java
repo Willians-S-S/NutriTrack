@@ -22,7 +22,6 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v1/usuarios/{usuarioId}/metas")
-@PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
 public class MetaController {
 
     @Autowired

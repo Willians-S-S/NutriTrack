@@ -6,6 +6,11 @@ type WaterLogModalProps = {
   onClose: (didUpdate: boolean) => void;
 };
 
+/**
+ * Um componente de modal para registrar o consumo de água.
+ * @param {WaterLogModalProps} props As propriedades para o componente.
+ * @returns {JSX.Element | null} O componente renderizado.
+ */
 const WaterLogModal: React.FC<WaterLogModalProps> = ({ isOpen, onClose }) => {
   const [quantidadeMl, setQuantidadeMl] = useState(250);
   const [dataMedicao, setDataMedicao] = useState(new Date().toISOString().split('T')[0]);

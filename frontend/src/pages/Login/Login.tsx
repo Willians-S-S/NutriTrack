@@ -5,6 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { MouseEvent, useState } from "react";
 import "./Login.scss";
 
+/**
+ * A página de login da aplicação.
+ * @returns {JSX.Element} A página de login renderizada.
+ */
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

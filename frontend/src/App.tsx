@@ -8,6 +8,9 @@ import Profile from "./pages/Profile/Profile";
 import Progress from "./pages/Progress/Progress";
 import Foods from "./pages/Foods/Foods";
 
+/**
+ * Envolve o componente principal da aplicação com o BrowserRouter para habilitar o roteamento.
+ */
 function AppWrapper() {
   return (
     <BrowserRouter>
@@ -18,6 +21,11 @@ function AppWrapper() {
 
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
+/**
+ * O componente principal da aplicação.
+ * Ele configura as rotas e renderiza os componentes apropriados com base na URL atual.
+ * Ele também renderiza condicionalmente o componente Header com base na rota.
+ */
 function App() {
   const location = useLocation();
   const noHeaderRoutes = ["/login", "/registrar"];

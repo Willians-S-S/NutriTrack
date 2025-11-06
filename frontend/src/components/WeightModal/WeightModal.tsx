@@ -6,6 +6,11 @@ type WeightModalProps = {
   onClose: (didUpdate?: boolean) => void;
 };
 
+/**
+ * Um componente de modal para adicionar um novo registro de peso.
+ * @param {WeightModalProps} props As propriedades para o componente.
+ * @returns {JSX.Element | null} O componente renderizado.
+ */
 export default function WeightModal({ isOpen, onClose }: WeightModalProps) {
   async function handleAddWeight(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

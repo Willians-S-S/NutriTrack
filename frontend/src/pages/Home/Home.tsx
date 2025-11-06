@@ -22,6 +22,10 @@ type HomeData = {
   targetCalories: number | null;
 };
 
+/**
+ * A página inicial da aplicação, que exibe um painel com o resumo diário do usuário.
+ * @returns {JSX.Element} A página inicial renderizada.
+ */
 function Home() {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);

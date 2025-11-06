@@ -18,6 +18,28 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entidade que representa um usuário no sistema.
+ * Implementa a interface UserDetails do Spring Security para integração com autenticação.
+ *
+ * Campos:
+ * <ul>
+ *   <li>id: UUID único do usuário (chave primária)</li>
+ *   <li>nome: Nome completo do usuário, obrigatório</li>
+ *   <li>email: Email do usuário, obrigatório e único, usado como username</li>
+ *   <li>senhaHash: Hash da senha do usuário, obrigatório</li>
+ *   <li>alturaM: Altura do usuário em metros, obrigatória</li>
+ *   <li>dataNascimento: Data de nascimento do usuário, obrigatória</li>
+ *   <li>nivelAtividade: Nível de atividade física do usuário, obrigatório</li>
+ *   <li>objetivoUsuario: Objetivo do usuário em relação ao peso, obrigatório</li>
+ *   <li>role: Perfil de acesso do usuário (USER ou ADMIN), obrigatório</li>
+ *   <li>criadoEm: Data e hora de criação do registro, preenchida automaticamente</li>
+ *   <li>atualizadoEm: Data e hora da última atualização do registro, preenchida automaticamente</li>
+ *   <li>refeicoes: Lista de refeições do usuário (OneToMany)</li>
+ *   <li>registrosPeso: Lista de registros de peso do usuário (OneToMany)</li>
+ *   <li>registrosAgua: Lista de registros de consumo de água do usuário (OneToMany)</li>
+ * </ul>
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -5,6 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import type { MouseEvent } from "react";
 import "./Register.scss";
 
+/**
+ * A página de registro da aplicação.
+ * @returns {JSX.Element} A página de registro renderizada.
+ */
 const Register: React.FC = () => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');

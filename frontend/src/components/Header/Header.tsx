@@ -4,6 +4,10 @@ import { BsBell } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { NavLink } from "react-router-dom";
 
+/**
+ * Renderiza o cabeçalho da aplicação.
+ * Ele inclui o logotipo, links de navegação e um link de perfil.
+ */
 function Header() {
   return (
     <header className="header">

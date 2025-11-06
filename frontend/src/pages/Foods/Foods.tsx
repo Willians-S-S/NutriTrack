@@ -65,6 +65,10 @@ const MOCK_MEASURES: { key: MeasureKey; label: string }[] = [
 
 const MACRO_BASE_DIVISOR = 100;
 
+/**
+ * A página para pesquisar e adicionar alimentos às refeições.
+ * @returns {JSX.Element} A página renderizada.
+ */
 export default function Foods() {
   const [query, setQuery] = useState("");
   const [catalog, setCatalog] = useState<CatalogFood[]>([]);

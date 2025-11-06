@@ -34,6 +34,11 @@ interface FoodModalProps {
   loading?: boolean;
 }
 
+/**
+ * Um componente de modal para adicionar um novo item de comida a uma refeição.
+ * @param {FoodModalProps} props As propriedades para o componente.
+ * @returns {JSX.Element | null} O componente renderizado.
+ */
 export default function FoodModal({
   isOpen,
   onClose,

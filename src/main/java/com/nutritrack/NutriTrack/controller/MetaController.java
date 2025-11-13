@@ -59,11 +59,7 @@ public class MetaController {
      * @param metaRequestDTO O DTO com os novos dados da meta.
      * @return Um ResponseEntity com a meta atualizada e o status HTTP 200 (OK).
      */
-<<<<<<< HEAD
     @PatchMapping("/{metaId}")
-=======
-    @PutMapping("/{metaId}")
->>>>>>> 471a69f11f6bc087b8d60c07020869a727f9ea22
     public ResponseEntity<List<MetaResponseDTO>> updateMeta(
             @PathVariable UUID metaId,
             @Valid @RequestBody MetaRequestDTO metaRequestDTO) {

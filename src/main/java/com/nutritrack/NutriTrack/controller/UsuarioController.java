@@ -54,7 +54,7 @@ public class UsuarioController {
      * @return {@link UserResponseDTO} contendo os dados do perfil
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or @authorization.isAuthorized(#id, authentication)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @authorization.isAuthorized(#id, authentication)")
     public ResponseEntity<UserResponseDTO> getCurrentUserProfile(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.findById(id));
     }

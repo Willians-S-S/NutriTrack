@@ -185,8 +185,7 @@ export default function Progress() {
         />
         <Button 
             title="Editar Metas" 
-            onClick={() => navigate('/profile')} 
-            white={true}
+            onClick={() => navigate('/profile')}
           />
       </section>
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Progress.scss";
+import Button from "../../components/Button/Button";
 
 type TabKey = "diaria" | "semanal" | "mensal";
 
@@ -41,6 +42,7 @@ export default function Progress() {
   const [loading, setLoading] = useState(true);
   const [weightHistory, setWeightHistory] = useState<any[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const fetchWeightHistory = useCallback(async () => {
     const userId = localStorage.getItem("userId");
@@ -181,6 +183,11 @@ export default function Progress() {
           suffix={currentData.goals.carbs.suffix}
           percent={goalsPerc.carbs}
         />
+        <Button 
+            title="Editar Metas" 
+            onClick={() => navigate('/profile')} 
+            white={true}
+          />
       </section>
 
       <h3 className="section-title">Acompanhamento de Peso</h3>
